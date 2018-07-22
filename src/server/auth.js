@@ -38,8 +38,8 @@ function getUserInfo(id) {
     return {name: userList[id]};
 }
 
-function getAllUsersInfo(){
-	return {userList};
+function getAllUsers(){
+	return {users:userList};
 }
 
-module.exports = {userAuthentication, addUserToAuthList, removeUserFromAuthList, getUserInfo,getAllUsersInfo}
+module.exports = {userAuthentication, addUserToAuthList, removeUserFromAuthList, getUserInfo,getAllUsers}

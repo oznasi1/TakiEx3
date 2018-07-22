@@ -9,33 +9,27 @@ import ReactDOM from "react-dom";
         this.fetchAllUsers= this.fetchAllUsers.bind(this);
     }
 
-    fetchAllUsers(){
-        fetch('/users/allUsers', {method: 'GET', credentials: 'include'})
-        .then(response => {
-            if (!response.ok) {
-                throw response;              
-            }
-            return response.json();
-        })
-    }
 
-render(){
-    var nameElem=[];
-    var nameList =['amit','oz','dor'];
-    for (let i = 0; i < nameList.length; i++) {
-        nameElem.push(<div id={i}>
-            {`${nameList[i]}
-            
-            `}</div>);
-    }
-    return (
-        
-        <div className="container" id="activeUsers"> Active Users:
-            <br></br><br></br>
-            {nameElem} 
-        </div>
+    render() {
+        return (
+          <fieldset>
+            <legend>online users</legend>
+            <ul>
+              {this.fetchAllUsers(this.props.usersList).map(user => (
+                <li key={user}>{user}</li>
+              ))}{' '}
+            </ul>
+          </fieldset>
         );
-    }
+      }
+
+      fetchAllUsers(users) {
+        let res = [];
+        for (let user in users) {
+          res.push(users[user]);
+        }
+        return res;
+      }
 }
 
 export{ActiveUsers};

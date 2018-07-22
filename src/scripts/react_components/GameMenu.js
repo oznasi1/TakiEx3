@@ -16,17 +16,23 @@ class GameMenu extends React.Component {
             showLogin:true,
             currentUser:{
                 name:""
-            }
+            },
+            users:{}
         };
         this.handleSuccessedLogin = this.handleSuccessedLogin.bind(this);
         this.handleLoginError = this.handleLoginError.bind(this);
         this.fetchUserInfo = this.fetchUserInfo.bind(this);
         this.logoutHandler= this.logoutHandler.bind(this);
+        this.getUsers=this.getUsers.bind(this);
+        this.pullUsers = this.pullUsers.bind(this);
+
         this.getUserName();
+        this.pullUsers();
     }
 
     handleSuccessedLogin() {
-        this.setState(()=>({showLogin:false}), this.getUserName);        
+        this.setState(()=>({showLogin:false}), this.getUserName); 
+        this.pullUsers();       
     }
 
     handleLoginError() {
@@ -45,7 +51,7 @@ class GameMenu extends React.Component {
            )     
         }
         else{
-            return <WaitingRoom currentUserName={this.state.currentUser.name} logoutHandler={this.logoutHandler}/>
+            return <WaitingRoom currentUserName={this.state.currentUser.name} users={this.state.users['users']} logoutHandler={this.logoutHandler} />
         }
     }
 
@@ -74,8 +80,26 @@ class GameMenu extends React.Component {
         });
     }
 
-    
-    logoutHandler() {
+    pullUsers() {
+        this.getUsers().then(users => {
+          this.setState({ users }, () => {
+            setTimeout(this.pullUsers, 200);
+          });
+        });
+      }
+
+    getUsers(){
+        return fetch('/users/allUsers',{method: 'GET', credentials: 'include'})
+        .then(response => {            
+            if (!response.ok){
+                throw response;
+            }
+            return response.json();
+        });
+    }
+
+
+      logoutHandler() {
         fetch('/users/logout', {method: 'GET', credentials: 'include'})
         .then(response => {
             if (!response.ok) {
@@ -84,6 +108,7 @@ class GameMenu extends React.Component {
             this.setState(()=>({currentUser: {name:''}, showLogin: true}));
         })
     }
+
 }
 
 function initGame() {

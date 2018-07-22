@@ -18,7 +18,7 @@ class WaitingRoom extends React.Component {
                  <img src={takiLogo} className={"taki_logo"}/>
                  <div className="userName">welcome {this.props.currentUserName}</div>
                  <button  id="logoutBtn" className="buttons" onClick={this.props.logoutHandler}>logout</button>
-                 <ActiveUsers/>
+                 <ActiveUsers usersList={this.props.users}/>
                  <br></br><br></br>
                  <CreateGame/>
              </div>
