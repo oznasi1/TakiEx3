@@ -17,17 +17,19 @@ class GameMenu extends React.Component {
             currentUser:{
                 name:""
             },
-            users:{}
+            users:{},
+            games:[]
         };
         this.handleSuccessedLogin = this.handleSuccessedLogin.bind(this);
         this.handleLoginError = this.handleLoginError.bind(this);
         this.fetchUserInfo = this.fetchUserInfo.bind(this);
-        this.logoutHandler= this.logoutHandler.bind(this);
-        this.getUsers=this.getUsers.bind(this);
+        this.logoutHandler = this.logoutHandler.bind(this);
+        this.getUsers = this.getUsers.bind(this);
         this.pullUsers = this.pullUsers.bind(this);
+        this.getGames = this.getGames.bind(this);
+        this.pullGames = this.pullGames.bind(this);
 
         this.getUserName();
-        this.pullUsers();
     }
 
     handleSuccessedLogin() {
@@ -51,7 +53,7 @@ class GameMenu extends React.Component {
            )     
         }
         else{
-            return <WaitingRoom currentUserName={this.state.currentUser.name} users={this.state.users['users']} logoutHandler={this.logoutHandler} />
+            return <WaitingRoom currentUser={this.state.currentUser} users={this.state.users['users']} games={this.state.games} pullGames={this.pullGames} logoutHandler={this.logoutHandler} />
         }
     }
 
@@ -98,6 +100,26 @@ class GameMenu extends React.Component {
         });
     }
 
+
+    pullGames() {
+        this.getGames().then(games => {
+          this.setState({ games }, () => {
+            setTimeout(this.pullGames, 200);
+          });
+        });
+      }
+
+    getGames(){
+        return fetch('/games',{method: 'GET', credentials: 'include'})
+        .then(response => {            
+            if (!response.ok){
+                throw response;
+            }
+            return response.json();
+        });
+    }
+
+    
 
       logoutHandler() {
         fetch('/users/logout', {method: 'GET', credentials: 'include'})
