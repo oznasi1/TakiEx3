@@ -48,15 +48,15 @@ import ReactDOM from "react-dom";
             this.props.successHandler();
         }
     });
-}
+    }
 
-handleRadioChange(e){
+    handleRadioChange(e){
     this.setState({
         currentSelectedRadio:e.target.value
     });
-}
+    }
 
-renderErrorMessage() {
+    renderErrorMessage() {
     if (this.state.errorMsg) {
         return (
             <div className="login-error-message">
@@ -65,7 +65,7 @@ renderErrorMessage() {
         );
     }
     return null;
-}
+    }
 
 render(){
 

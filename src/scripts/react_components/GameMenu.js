@@ -28,7 +28,8 @@ class GameMenu extends React.Component {
         this.pullUsers = this.pullUsers.bind(this);
         this.getGames = this.getGames.bind(this);
         this.pullGames = this.pullGames.bind(this);
-
+        this.pullGames();
+        this.pullUsers();
         this.getUserName();
     }
 
@@ -41,7 +42,9 @@ class GameMenu extends React.Component {
         this.setState(()=>({showLogin:true}));
     }
 
-
+    handleGameUpdate(){
+        this.setState
+    }
     render() {
 
         if(this.state.showLogin){
@@ -99,7 +102,6 @@ class GameMenu extends React.Component {
             return response.json();
         });
     }
-
 
     pullGames() {
         this.getGames().then(games => {

@@ -24,12 +24,13 @@ class WaitingRoom extends React.Component {
                  <ActiveUsers usersList={this.props.users}/>
                  <br></br><br></br>
                  <CreateGame user={this.props.currentUser} successHandler={this.gameSuccessHandler} errorHandler={this.gemeErrorHandler}/>
-                 <GamesAvailable games={this.props.games}/>
+                 <GamesAvailable games={this.props.games}  user={this.props.currentUser}/>
              </div>
         );
     }
+
     gameSuccessHandler(){
-        this.props.pullGames();
+        //this.props.pullGames();
     }
 
     gemeErrorHandler(){
