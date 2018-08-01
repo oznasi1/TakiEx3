@@ -10,12 +10,10 @@ import {GamesAvailable} from "./GamesAvailable.js";
 class WaitingRoom extends React.Component {
     constructor(args) {
         super(args);
-        this.gameSuccessHandler=this.gameSuccessHandler.bind(this);
-        this.gemeErrorHandler=this.gemeErrorHandler.bind(this);
     }
 
-    render() {
 
+    render() {
         return(
             <div  id="waitingRoom">
                  <img src={takiLogo} className={"taki_logo"}/>
@@ -23,21 +21,13 @@ class WaitingRoom extends React.Component {
                  <button  id="logoutBtn" className="buttons" onClick={this.props.logoutHandler}>logout</button>
                  <ActiveUsers usersList={this.props.users}/>
                  <br></br><br></br>
-                 <CreateGame user={this.props.currentUser} successHandler={this.gameSuccessHandler} errorHandler={this.gemeErrorHandler}/>
-                 <GamesAvailable games={this.props.games}  user={this.props.currentUser}/>
+                 <CreateGame user={this.props.currentUser}/>
+                 <GamesAvailable games={this.props.games}
+                                 user={this.props.currentUser}
+                                 succesJoinHandler={this.props.succesJoinHandler}/>
              </div>
         );
     }
-
-    gameSuccessHandler(){
-        //this.props.pullGames();
-    }
-
-    gemeErrorHandler(){
-
-    }
-
-
 }
 
 

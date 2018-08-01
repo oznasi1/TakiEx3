@@ -6,7 +6,8 @@ import startGameBtn from "../../styles/assets/startGame.png";
 import {Game} from "./Game.js";
 import {Login} from "./Login.js";
 import {WaitingRoom} from "./WaitingRoom.js";
-
+import {ActiveUsers} from "./ActiveUsers.js";
+import {GamesAvailable} from "./GamesAvailable.js";
 
 
 class GameMenu extends React.Component {
@@ -14,12 +15,17 @@ class GameMenu extends React.Component {
         super(args);
         this.state={
             showLogin:true,
+            showThirdScreen:false,
+            currentGame:[],
             currentUser:{
                 name:""
             },
             users:{},
             games:[]
         };
+        this.updateCurrentGame= this.updateCurrentGame.bind(this);//after joining update screen 3 game
+        this.quitGameHandle = this.quitGameHandle.bind(this);
+        this.succesJoinHandler= this.succesJoinHandler.bind(this);
         this.handleSuccessedLogin = this.handleSuccessedLogin.bind(this);
         this.handleLoginError = this.handleLoginError.bind(this);
         this.fetchUserInfo = this.fetchUserInfo.bind(this);
@@ -29,8 +35,54 @@ class GameMenu extends React.Component {
         this.getGames = this.getGames.bind(this);
         this.pullGames = this.pullGames.bind(this);
         this.pullGames();
-        this.pullUsers();
+        //this.pullUsers(); // doesnt work here, only in succes login handler
         this.getUserName();
+    }
+
+    render() {
+        if(!this.state.showThirdScreen){
+
+        
+            if(this.state.showLogin){
+                return(
+                <div id="menuWrapper">
+                    <img src={takiLogo} className={"taki_logo"}/>
+                    <Login loginSuccessHandler={this.handleSuccessedLogin} loginErrorHandler={this.handleLoginError}/>
+                </div>
+               )     
+            }
+            else{
+                return <WaitingRoom currentUser={this.state.currentUser}
+                        users={this.state.users['users']}
+                        games={this.state.games} pullGames={this.pullGames}
+                        logoutHandler={this.logoutHandler}
+                        startGameFunc={this.startGame}
+                        succesJoinHandler={this.succesJoinHandler}/>
+            }
+        }
+        else{
+            return(
+                <div id="thirdScreen">
+                    <img src={takiLogo} className={"taki_logo"}/>
+                    <div>Welcome to game: {this.state.currentGame.name} </div>
+                    <div className="userName">welcome {this.state.currentUser.name}</div>
+                    <button  id="quitBtn" className="buttons" onClick={this.quitGameHandle}>quit game</button>
+                    <div>waiting for other players to connect! please be patient</div>
+                    <ActiveUsers usersList={this.state.users['users']}/>
+
+                    <li key={this.state.currentGame.name}>
+                    <div>{`Creator: ${this.state.currentGame.user.name}`}</div>
+                    <div>{`Required players: ${this.state.currentGame.numberOfPlayers}`}</div>
+                    <div>{`Connected players: ${this.state.currentGame.players.length}`}</div>
+                    <div>{this.state.currentGame.numberOfPlayers-this.state.currentGame.players.length!=0 ? `Status: not started` : `Status: started`}</div>
+                    </li>
+                </div>
+            )
+        }
+    }
+
+    succesJoinHandler(game){
+        this.setState({showThirdScreen:true, currentGame:game});
     }
 
     handleSuccessedLogin() {
@@ -41,25 +93,6 @@ class GameMenu extends React.Component {
     handleLoginError() {
         this.setState(()=>({showLogin:true}));
     }
-
-    handleGameUpdate(){
-        this.setState
-    }
-    render() {
-
-        if(this.state.showLogin){
-            return(
-            <div id="menuWrapper">
-                <img src={takiLogo} className={"taki_logo"}/>
-                <Login loginSuccessHandler={this.handleSuccessedLogin} loginErrorHandler={this.handleLoginError}/>
-            </div>
-           )     
-        }
-        else{
-            return <WaitingRoom currentUser={this.state.currentUser} users={this.state.users['users']} games={this.state.games} pullGames={this.pullGames} logoutHandler={this.logoutHandler} />
-        }
-    }
-
 
     getUserName() {
         this.fetchUserInfo()
@@ -74,6 +107,17 @@ class GameMenu extends React.Component {
             }
         });
     }
+    
+    quitGameHandle(){
+        fetch(`/games/${this.state.currentGame.name}/logout`, {method: 'POST',body:JSON.stringify(this.state.currentUser), credentials: 'include'})
+        .then(response => {
+            if (!response.ok) {
+                console.log(`failed to logout user ${this.state.currentUser.name} `);                
+            }
+            //this.setState(()=>({currentUser: {name:''}, showLogin: true}));
+            this.setState({showThirdScreen:false});
+        })
+      }
 
     fetchUserInfo() {        
         return fetch('/users',{method: 'GET', credentials: 'include'})
@@ -91,7 +135,7 @@ class GameMenu extends React.Component {
             setTimeout(this.pullUsers, 200);
           });
         });
-      }
+    }
 
     getUsers(){
         return fetch('/users/allUsers',{method: 'GET', credentials: 'include'})
@@ -109,9 +153,18 @@ class GameMenu extends React.Component {
             setTimeout(this.pullGames, 200);
           });
         });
-      }
+    }
+
+    updateCurrentGame(){
+        this.state.games.forEach(game => {
+            if(game.name==this.state.currentGame.name){
+                this.setState({currentGame:game});
+            }
+        });
+    }
 
     getGames(){
+        this.updateCurrentGame();
         return fetch('/games',{method: 'GET', credentials: 'include'})
         .then(response => {            
             if (!response.ok){
@@ -121,9 +174,7 @@ class GameMenu extends React.Component {
         });
     }
 
-    
-
-      logoutHandler() {
+    logoutHandler() {
         fetch('/users/logout', {method: 'GET', credentials: 'include'})
         .then(response => {
             if (!response.ok) {

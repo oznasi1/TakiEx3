@@ -13,7 +13,6 @@ import ReactDOM from "react-dom";
         this.createGameOnClick= this.createGameOnClick.bind(this);
         this.handleRadioChange=this.handleRadioChange.bind(this);
         this.radioParser=this.radioParser.bind(this);
-
     }
 
     radioParser(selectedRadio){
@@ -41,11 +40,9 @@ import ReactDOM from "react-dom";
         })
         .then(response => {            
         if (!response.ok){
-            this.setState(()=> ({errorMsg: "game name already exist"}));
-            this.props.errorHandler();//do nothing write now
+            this.setState(()=> ({errorMsg: "game name invalid"}));
         }else{
             this.setState(()=> ({errorMsg: ""}));
-            this.props.successHandler();
         }
     });
     }

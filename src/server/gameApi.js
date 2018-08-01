@@ -2,8 +2,8 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('./auth');
-
 const gameApi  = express.Router();
+
 
 let activeGames = [];
 
@@ -18,13 +18,15 @@ gameApi.post('/', auth.userAuthentication, (req, res) => {
 	  ) {
 		//error = 'game name already exists';
 		res.status(401).send();
-	  } else {
+		}else if(req.body.name==""){
+			res.status(401).send();
+		}else {
 		activeGames.push(
 		  Object.assign({}, req.body, {
 			players: [],
 		  })
 		);
-	}//			players: [req.body.user],
+	}
 
 
 	res.send();
@@ -45,8 +47,6 @@ gameApi.post('/', auth.userAuthentication, (req, res) => {
 					playerIndex = i;
 			}
 	}
-
-		//let index = game.players.indexOf(name);
 		if (playerIndex >= 0) {
 			activeGames[gameIndex].players.splice(playerIndex, 1);
 			res.send(200);
@@ -73,11 +73,12 @@ gameApi.post('/', auth.userAuthentication, (req, res) => {
 				}
 		}
 
-		if (playerIndex == -1) { //player is not in the game
+		if (playerIndex == -1&&activeGames[gameIndex].players.length < activeGames[gameIndex].numberOfPlayers) { //player is not in the game
 			activeGames[gameIndex].players.push(JSON.parse(req.body));
-			res.send(200);
-			if (requestedGame.players.length === requestedGame.numberOfPlayers) {
-				/////*/*/*/*/*/*/*/*/*/*/*/*/**need to start the game here
+			//res.sendStatus(200);
+			res.sendStatus(200).send(activeGames[gameIndex].players.length);
+			if (activeGames[gameIndex].players.length === activeGames[gameIndex].numberOfPlayers) {
+				//startGame(activeGames[gameIndex]);
 			}
 		} else { // the player already in 
 			error="you are already in this game";
