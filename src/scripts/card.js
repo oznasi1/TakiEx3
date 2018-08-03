@@ -1,7 +1,7 @@
 
 let Face_Down_Attribute = "card_back";
 
-export class Card {
+class Card {
 
     //attributes[1] is the valid attribute
     constructor(i_Color, i_Id, card_attributes, actionCard) {
@@ -52,3 +52,5 @@ export class Card {
         return this.isActionCard;
     }
 }
+
+module.exports = Card;

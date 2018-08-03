@@ -153,4 +153,5 @@ class ActionManager {
 }//Action Manager
 
 
-export {ActionManager, eGameState};
+//export {ActionManager, eGameState};
+module.exports = ActionManager;

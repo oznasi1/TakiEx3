@@ -1,6 +1,7 @@
 
 import React from "react";
 import ReactDOM from "react-dom";
+import {Game} from "./react_components/Game.js";
 
 
 import takiLogo from "../styles/assets/TAKI_logo.png";

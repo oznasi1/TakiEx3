@@ -23,12 +23,10 @@ gameApi.post('/', auth.userAuthentication, (req, res) => {
 		}else {
 		activeGames.push(
 		  Object.assign({}, req.body, {
-			players: [],
+			players: [], 
 		  })
 		);
 	}
-
-
 	res.send();
 	//error==''? res.send({error: error }) :res.status(401).send({error: error });
 	});
@@ -75,17 +73,31 @@ gameApi.post('/', auth.userAuthentication, (req, res) => {
 
 		if (playerIndex == -1&&activeGames[gameIndex].players.length < activeGames[gameIndex].numberOfPlayers) { //player is not in the game
 			activeGames[gameIndex].players.push(JSON.parse(req.body));
-			//res.sendStatus(200);
-			res.sendStatus(200).send(activeGames[gameIndex].players.length);
-			if (activeGames[gameIndex].players.length === activeGames[gameIndex].numberOfPlayers) {
-				//startGame(activeGames[gameIndex]);
-			}
+			//res.send(200);
+			// if (activeGames[gameIndex].players.length === activeGames[gameIndex].numberOfPlayers) {
+			// 	activeGames[gameIndex].isGameFull = true;
+			// }
 		} else { // the player already in 
 			error="you are already in this game";
+			res.status(401).send({ gameName: req.params.gameName, error:error });
 		}
-		res.status(401).send({ gameName: req.params.gameName, error:error });
+		//res.send(JSON.stringify(activeGames[gameIndex]));
+		res.json(activeGames[gameIndex]);
 	});
 
+	// gameApi.get('/startGame/:gameName', (req, res)=>{
+	// 	const gameName = req.params.gameName;
+	// 	const game = activeGames.find(game => game.name === gameName);
+	// 	if(!game) return res.status(400).send("Error = gameName not found.");
+	// 	res.send(JSON.stringify(game.isGameStart));
+	// });
+
+	// gameApi.get('/startGame/:gameName', (req, res)=>{
+	// 	const gameName = req.params.gameName;
+	// 	const game = activeGames.find(game => game.name === gameName);
+	// 	if(!game) return res.status(400).send("Error = gameName not found.");
+	// 	res.send(JSON.stringify(game.isGameStart));
+	// });
 
 	gameApi.post('/:gameName/delete', (req, res) => {
 
@@ -101,6 +113,8 @@ gameApi.post('/', auth.userAuthentication, (req, res) => {
 		}
 		res.status(401).send(`faild to delete the game`);
 	});
+
+	
 
 
 

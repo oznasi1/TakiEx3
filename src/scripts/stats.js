@@ -62,4 +62,6 @@ function Stats() {
     }
 }
 
-export {Stats};
+//export {Stats};
+
+module.exports = Stats;

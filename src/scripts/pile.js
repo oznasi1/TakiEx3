@@ -1,4 +1,5 @@
-import {Card} from './card';
+//import {Card} from './card';
+//const Card = require('./card.js');
 
 class Pile {
     constructor() {
@@ -49,4 +50,4 @@ class Pile {
 
 }
 
-export {Pile};
+module.exports = Pile;

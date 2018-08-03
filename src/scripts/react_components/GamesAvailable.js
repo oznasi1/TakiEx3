@@ -16,10 +16,11 @@ import ReactDOM from "react-dom";
           if (!response.ok) {
               alert(`failed to join  ${user.name} `, response);                
           }else{
-            //game.players.push(user);
-            succesJoinHandler.call(this,game);
+            // alert(response.json().numberOfPlayers);
+            // succesJoinHandler.call(this,response.json());
+            return response.json();
           }
-      })
+      }).then(game=>succesJoinHandler.call(this,game));
     }
 
     deleteGameHandle(gameName,user){

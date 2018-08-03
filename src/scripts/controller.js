@@ -1,5 +1,5 @@
 
-import {GameEngine} from "./gameEngine.js";
+// import {GameEngine} from "./gameEngine.js";
 
 const NUM_OF_HUMAN = 1;
 const NUM_OF_BOT = 1;
@@ -8,39 +8,9 @@ const NUM_OF_BOT = 1;
 
     var listener;
     var engine;
-    var stateArr=[];
-    var currentIndex=-1;
 
-    function cleanStateArray(){
-        stateArr=[];
-        currentIndex=-1;
-    }
 
-    function prevWasClicked(index){
-        let newState={};
-        if(index==0){
-            currentIndex=stateArr.length-1
-        }
-        else{
-            currentIndex--;
-        }
-        Object.assign(newState,stateArr[currentIndex]);
-
-        listener.setState(newState);
-    }
-
-    function nextWasClicked(index){
-        let newState={};
-        currentIndex=(++index)%(stateArr.length);
-        Object.assign(newState,stateArr[currentIndex]);
-        listener.setState(newState);
-    }
-
-    function saveStateInArry(currState){
-        stateArr.push(newState);
-    }
-
-    function updateByRef(newShowError,newShowColorPicker,newEndGame){
+    function updateByRef( newShowError,newShowColorPicker,newEndGame){
         let newDeck = [];
         let newPile = [];
         let newBotCards = [];
@@ -57,17 +27,19 @@ const NUM_OF_BOT = 1;
         Object.assign(newPile,engine.Pile.Cards);
 
         currentPlayerIndex = engine.Players.getCurrentPlayerIndex();
+
         newStats={
            numOfTurs:engine.Players.getPlayersList()[currentPlayerIndex].Stats.getNumOfTurns(), 
            avgTime:engine.Players.getPlayersList()[currentPlayerIndex].Stats.getAvgPlayTime(),
            lastCardCount:engine.Players.getPlayersList()[currentPlayerIndex].Stats.getNumOfOneCard(),
                 } 
+        newBotStats={
+                numOfTurs:engine.Players.getPlayersList()[1].Stats.getNumOfTurns(), 
+                avgTime:engine.Players.getPlayersList()[1].Stats.getAvgPlayTime(),
+                lastCardCount:engine.Players.getPlayersList()[1].Stats.getNumOfOneCard(),
+                }
+
         if(newEndGame){ // if we got this flag that found the winner
-            newBotStats={
-                    numOfTurs:engine.Players.getPlayersList()[1].Stats.getNumOfTurns(), 
-                    avgTime:engine.Players.getPlayersList()[1].Stats.getAvgPlayTime(),
-                    lastCardCount:engine.Players.getPlayersList()[1].Stats.getNumOfOneCard(),
-                    } 
             newWinLose={
                timer:GameEngine.getTimer(), //s_gameTimer return by static function in GameEngine called getTimer()
                winnerIndex:engine.checkForWinner(),
@@ -80,6 +52,7 @@ const NUM_OF_BOT = 1;
             stateIndex:newIndex,
             deck: newDeck,
             pile: newPile,
+            playerTwoStats:newBotStats,
             botCards: newBotCards,
             playerCards:newPlayerCards,
             showError:newShowError,
@@ -87,14 +60,7 @@ const NUM_OF_BOT = 1;
             endGame:newEndGame,
             stats:newStats,
             winLose:newWinLose,
-            isRepaly:false}
-
-        if((!newShowColorPicker&&!newShowError) ||newEndGame){// saving all moves exept error and the picking color action   
-            currentIndex++;
-            newIndex=currentIndex;
-            newState.stateIndex = newIndex;
-            stateArr.push(newState);
-        }  
+          }
 
         listener.setState(newState);
 
@@ -107,9 +73,17 @@ const NUM_OF_BOT = 1;
         }
  
         
-    function initGameEngine(){
-        engine = new GameEngine();
-        engine.initEngine(null,NUM_OF_HUMAN,NUM_OF_BOT);
+    function initGameEngine(gameId){
+  
+        return fetch(`/GetGame/${gameId}`, { method: 'GET', credentials: 'include' })
+        .then(response => {
+            if (!response.ok) {
+                alert(JSON.stringify(response));
+                alert(response.json());
+            }
+            engine = response.json();
+        });
+        //engine.initEngine(null,NUM_OF_HUMAN,NUM_OF_BOT);
     }
 
     function init (gameRef){
@@ -117,4 +91,4 @@ const NUM_OF_BOT = 1;
     }
 
 
-export {init,initGameEngine,updateByRef,engine,prevWasClicked,nextWasClicked,cleanStateArray};
+export {init,initGameEngine,updateByRef,engine};

@@ -1,4 +1,5 @@
-import {Card} from './card';
+//import {Card} from './card';
+const Card = require('./card.js');
 
 let cardID = ["1", "3", "4", "5", "6", "7", "8", "9"
     , "stop", "taki", "plus", "2plus", "taki_colorful", "change_colorful"];// adding 2plus before chanege color
@@ -9,7 +10,7 @@ let NUM_OF_TAKI_COLOR_CARD = 2;
 let NUM_OF_CHANGE_COLOR_CARD = 4;
 
 
-export class Deck {
+class Deck {
     constructor() {
         this.Cards = [];
         this.NumOfCardToDraw = 1;
@@ -120,3 +121,5 @@ export class Deck {
     }
 
 }
+
+module.exports = Deck;
