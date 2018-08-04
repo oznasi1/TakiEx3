@@ -103,7 +103,7 @@ class Game extends React.Component { //contains all - players,deck,pile,stats
     }
 
     updateBoard(){
-        const stat = getCurrentGameStatFromServer();
+        const stat = this.getCurrentGameStatFromServer();
         
         switch(stat){
             case 0:
@@ -122,7 +122,7 @@ class Game extends React.Component { //contains all - players,deck,pile,stats
     }
 
     getCurrentGameStatFromServer(){
-        return fetch(`/stat/${this.state.gameId}/${this.state.playerId}`, { method: 'GET', credentials: 'include' })
+        return fetch(`/engine/stat/${this.state.gameId}/${this.state.playerId}`, { method: 'GET', credentials: 'include' })
         .then(response => {
             if (!response.ok) {
                 throw response;

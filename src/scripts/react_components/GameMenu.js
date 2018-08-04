@@ -16,6 +16,7 @@ class GameMenu extends React.Component {
     constructor(args) {
         super(args);
         this.state = {
+            showGame: false,
             showLogin: true,
             showThirdScreen: false,
             currentGame: [],
@@ -39,55 +40,65 @@ class GameMenu extends React.Component {
         this.fetchIsGameExist = this.fetchIsGameExist.bind(this);
         this.createNewEngine = this.createNewEngine.bind(this);
         this.pullGameStatus = this.pullGameStatus.bind(this);
+        this.renderThirdScreen = this.renderThirdScreen.bind(this);
         this.pullGames();
         this.pullUsers(); // doesnt work here, only in succes login handler
         this.getUserName();
     }
 
     render() {
-        if (!this.state.showThirdScreen) {
-
-
-            if (this.state.showLogin) {
-                return (
-                    <div id="menuWrapper">
-                        <img src={takiLogo} className={"taki_logo"} />
-                        <Login loginSuccessHandler={this.handleSuccessedLogin} loginErrorHandler={this.handleLoginError} />
-                    </div>
-                )
+        if (!this.state.showGame) {
+            if (!this.state.showThirdScreen) {
+                if (this.state.showLogin) {
+                    return (
+                        <div id="menuWrapper">
+                            <img src={takiLogo} className={"taki_logo"} />
+                            <Login loginSuccessHandler={this.handleSuccessedLogin} loginErrorHandler={this.handleLoginError} />
+                        </div>
+                    )
+                }
+                else {
+                    return <WaitingRoom currentUser={this.state.currentUser}
+                        users={this.state.users['users']}
+                        games={this.state.games} pullGames={this.pullGames}
+                        logoutHandler={this.logoutHandler}
+                        startGameFunc={this.startGame}
+                        succesJoinHandler={this.succesJoinHandler} />
+                }
             }
             else {
-                return <WaitingRoom currentUser={this.state.currentUser}
-                    users={this.state.users['users']}
-                    games={this.state.games} pullGames={this.pullGames}
-                    logoutHandler={this.logoutHandler}
-                    startGameFunc={this.startGame}
-                    succesJoinHandler={this.succesJoinHandler} />
+                return this.renderThirdScreen();
             }
-        }
-        else {
-            return (
-                <div id="thirdScreen">
-                    <img src={takiLogo} className={"taki_logo"} />
-                    <div>Welcome to game: {this.state.currentGame.name} </div>
-                    <div className="userName">welcome {this.state.currentUser.name}</div>
-                    <button id="quitBtn" className="buttons" onClick={this.quitGameHandle}>quit game</button>
-                    <div>waiting for other players to connect! please be patient</div>
-                    <ActiveUsers usersList={this.state.users['users']} />
-
-                    <li key={this.state.currentGame.name}>
-                        <div>{`Creator: ${this.state.currentGame.user.name}`}</div>
-                        <div>{`Required players: ${this.state.currentGame.numberOfPlayers}`}</div>
-                        <div>{`Connected players: ${this.state.currentGame.players.length}`}</div>
-                        <div>{this.state.currentGame.numberOfPlayers - this.state.currentGame.players.length != 0 ? `Status: not started` : `Status: started`}</div>
-                    </li>
-                </div>
-            )
+        } else {
+            return <Game numberOfPlayers={this.state.currentGame.numberOfPlayers}
+                gameId={this.state.currentGame.name}
+                playerId={this.state.currentUser.name} />
         }
     }
 
-    createNewEngine(game) {
 
+    renderThirdScreen() {
+        return (
+            <div id="thirdScreen">
+                <img src={takiLogo} className={"taki_logo"} />
+                <div>Welcome to game: {this.state.currentGame.name} </div>
+                <div className="userName">welcome {this.state.currentUser.name}</div>
+                <button id="quitBtn" className="buttons" onClick={this.quitGameHandle}>quit game</button>
+                <div>waiting for other players to connect! please be patient</div>
+                <ActiveUsers usersList={this.state.users['users']} />
+
+                <li key={this.state.currentGame.name}>
+                    <div>{`Creator: ${this.state.currentGame.user.name}`}</div>
+                    <div>{`Required players: ${this.state.currentGame.numberOfPlayers}`}</div>
+                    <div>{`Connected players: ${this.state.currentGame.players.length}`}</div>
+                    <div>{this.state.currentGame.numberOfPlayers - this.state.currentGame.players.length != 0 ? `Status: not started` : `Status: started`}</div>
+                </li>
+            </div>
+        )
+    }
+
+
+    createNewEngine(game) {
         let url = "";
 
         switch (game.numberOfPlayers) {
@@ -101,27 +112,25 @@ class GameMenu extends React.Component {
                 url = `/engine/games/${game.name}/${game.players[0].name}/${game.players[1].name}/${game.players[2].name}/${game.players[3].name}`;
                 break;
         }
-        fetch(url, { method: 'GET', credentials: 'include' })
+        return fetch(url, { method: 'GET', credentials: 'include' })
             .then(response => {
                 if (!response.ok) {
                     alert(`failed to create engine ${game.name} `);
+                    throw response;
                 }
+                return response;
             })
     }
 
     succesJoinHandler(game) {
         if (game.players.length === game.numberOfPlayers) {
             // clearTimeout(this.pullUsers);
-            this.createNewEngine(game);
-            /*
-            this.createNewEngine(game).then(() => {
-                alert("We Started the game");
-                ReactDOM.render(<Game
-                    numberOfPlayers={this.state.currentGame.numberOfPlayers}
-                    gameId={this.state.currentGame.name}
-                    playerId={this.state.currentUser.name} />, document.getElementById("root"));
-            }
-            )*/
+            //this.createNewEngine(game);
+
+            this.createNewEngine(game).then((engine) => {
+                this.setState({ showGame: true });
+                }
+            );
         }
         this.setState({ showThirdScreen: true, currentGame: game });
     }
@@ -226,18 +235,11 @@ class GameMenu extends React.Component {
     updateCurrentGame() {
         this.state.games.forEach(game => {
             if (game.name == this.state.currentGame.name) {
-                //const isGameExist = this.fetchIsGameExist();
-                if (this.state.currentGame.players.length === this.state.currentGame.numberOfPlayers) { //if game started switch to the Game Component
-                    alert("We Started the game");
-                    clearInterval(gameInterval);
-                    ReactDOM.render(<Game
-                        numberOfPlayers={this.state.currentGame.numberOfPlayers}
-                        gameId={this.state.currentGame.name}
-                        playerId={this.state.currentUser.name} />, document.getElementById("root"));
+                if (this.state.currentGame.players.length === this.state.currentGame.numberOfPlayers) { 
+                    this.setState({showGame:true});                    
                 }
-                else {
-                    this.setState({ currentGame: game });
-                }
+                this.setState({ currentGame: game });
+
             }
         });
     }
@@ -272,7 +274,6 @@ class GameMenu extends React.Component {
                 this.setState(() => ({ currentUser: { name: '' }, showLogin: true }));
             })
     }
-
 }
 
 function initGame() {

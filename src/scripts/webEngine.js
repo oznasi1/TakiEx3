@@ -59,9 +59,7 @@ class WebEngine {
 
     //if the current player ask for stat return game current stat else return normal
     stat(playerId){
-         
         let resultStat = eStat["normal"];
-        
         if(playerId === this.Players.getCurrentPlayerIndex()){
             resultStat =  this.stat;
             this.stat = eStat["normal"];

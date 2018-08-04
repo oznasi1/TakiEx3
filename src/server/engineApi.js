@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const WebEngine = require('../scripts/webEngine.js');
+const JSON = require('circular-json');
 
 
 
@@ -31,15 +32,18 @@ router.get('/games/:gameId', (req, res)=>{
 router.get('/GetGame/:gameId', (req, res)=>{
    //const gameId = parseInt(req.params.id);
     const gameId = req.params.gameId;
-    let game = gamesList.find(game => gameId === game.Id());
+    let game = gamesList.find(game => gameId === game.Id);
     if(!game) return res.status(400).send("Error - Game not exist.");
-    res.send(JSON.stringify(game)); //if exist send the engine back
+    //console.log(JSON.stringify(game));
+    //res.send(JSON.stringify(game)); //if exist send the engine back
+
+    res.json(200,JSON.stringify(game));
 });
 
 // Start new game with 2 players
 router.get('/games/:gameId/:id1/:id2', (req, res)=>{
     const gameId = req.params.gameId;
-    let game = gamesList.find(game => gameId === game.Id());
+    let game = gamesList.find(game => gameId === game.Id);    
     if(game) return res.status(400).send("Error - Game already exist.");
     game = new WebEngine(gameId);
     const id1 = req.params.id1;
