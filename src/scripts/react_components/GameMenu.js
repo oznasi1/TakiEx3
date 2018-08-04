@@ -11,6 +11,8 @@ import { updateByRef } from "../controller.js";
 //import { clearInterval } from "timers";
 
 var gameInterval;
+var allGameIntreval;
+var allUserInterval;
 
 class GameMenu extends React.Component {
     constructor(args) {
@@ -41,9 +43,10 @@ class GameMenu extends React.Component {
         this.createNewEngine = this.createNewEngine.bind(this);
         this.pullGameStatus = this.pullGameStatus.bind(this);
         this.renderThirdScreen = this.renderThirdScreen.bind(this);
-        this.pullGames();
-        this.pullUsers(); // doesnt work here, only in succes login handler
-        this.getUserName();
+        this.sortPlayersName = this.sortPlayersName.bind(this);
+        //this.pullGames();
+        //this.pullUsers(); // doesnt work here, only in succes login handler
+        //this.getUserName();
     }
 
     render() {
@@ -72,10 +75,22 @@ class GameMenu extends React.Component {
         } else {
             return <Game numberOfPlayers={this.state.currentGame.numberOfPlayers}
                 gameId={this.state.currentGame.name}
-                playerId={this.state.currentUser.name} />
+                playerId={this.state.currentUser.name}
+                namesList={this.sortPlayersName()}
+            />
         }
     }
 
+    sortPlayersName() {
+        const playesList = this.state.currentGame.players;
+        let namesList = [];
+        playesList.forEach((player) => namesList.push(player.name));
+        const userName = this.state.currentUser.name;
+        const userIndex = namesList.indexOf(userName);
+        namesList.splice(userIndex, 1);
+        namesList.unshift(userName);
+        return namesList;
+    }
 
     renderThirdScreen() {
         return (
@@ -125,19 +140,21 @@ class GameMenu extends React.Component {
     succesJoinHandler(game) {
         if (game.players.length === game.numberOfPlayers) {
             // clearTimeout(this.pullUsers);
-            //this.createNewEngine(game);
+            this.createNewEngine(game);
 
-            this.createNewEngine(game).then((engine) => {
-                this.setState({ showGame: true });
-                }
-            );
+            // this.createNewEngine(game).then((engine) => {
+            //     this.setState({ showGame: true });
+            //     }
+            // );
         }
         this.setState({ showThirdScreen: true, currentGame: game });
     }
 
     handleSuccessedLogin() {
         this.setState(() => ({ showLogin: false }), this.getUserName);
+        this.getUserName();
         this.pullUsers();
+        this.pullGames();
         this.pullGameStatus();
     }
 
@@ -182,16 +199,26 @@ class GameMenu extends React.Component {
     }
 
     pullGameStatus() {
-        gameInterval = setInterval(this.updateCurrentGame, 200);
+        gameInterval = setInterval(this.updateCurrentGame, 500);
     }
 
 
+    // pullUsers() {
+    //     this.getUsers().then(users => {
+    //         this.setState({ users }, () => {
+    //             allUserTimeOut = setTimeout(this.pullUsers, 500);
+    //         });
+    //     });
+    // }
+
+
+
     pullUsers() {
-        this.getUsers().then(users => {
-            this.setState({ users }, () => {
-                setTimeout(this.pullUsers, 200);
+        allUserInterval = setInterval(() => {
+            this.getUsers().then(users => {
+                this.setState({ users });
             });
-        });
+        }, 500);
     }
 
     getUsers() {
@@ -204,12 +231,13 @@ class GameMenu extends React.Component {
             });
     }
 
+
     pullGames() {
-        this.getGames().then(games => {
-            this.setState({ games }, () => {
-                setTimeout(this.pullGames, 200);
+        allGameIntreval = setInterval(() => {
+            this.getGames().then(games => {
+                this.setState({ games });
             });
-        });
+        }, 500);
     }
 
     getGames() {
@@ -235,10 +263,14 @@ class GameMenu extends React.Component {
     updateCurrentGame() {
         this.state.games.forEach(game => {
             if (game.name == this.state.currentGame.name) {
-                if (this.state.currentGame.players.length === this.state.currentGame.numberOfPlayers) { 
-                    this.setState({showGame:true});                    
-                }
+                if (this.state.currentGame.players.length === this.state.currentGame.numberOfPlayers) {
+                    clearInterval(allUserInterval);
+                    clearInterval(gameInterval);
+                    clearInterval(allGameIntreval);
+                    this.setState({ showGame: true });
+                }else{
                 this.setState({ currentGame: game });
+                }
 
             }
         });

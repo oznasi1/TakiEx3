@@ -30,7 +30,7 @@ class Players {
     createPlayers(i_GameEngine, i_Pile, i_Deck, i_PlayersArray) {
         let numOfPlayers = i_PlayersArray.length;
         for (let i = 0; i < numOfPlayers; i++) {
-            this.createPlayer(i_Deck, i_PlayersArray[i].name);
+            this.createPlayer(i_Deck, i_PlayersArray[i]);
         }
     }
 
@@ -56,8 +56,14 @@ class Players {
     nextPlayerTurn() {
         this.CurrentPlayer.endYourTurn(); //end currPlayer turn
 
-        this.CurrentPlayerIndex = (++this.CurrentPlayerIndex) % (this.numOfBot + this.numOfHumans);
-        this.CurrentPlayer = this.Players[this.CurrentPlayerIndex];
+        let foundPlayer = false;
+        while(!foundPlayer){
+            this.CurrentPlayerIndex = (++this.CurrentPlayerIndex) % (this.numOfBot + this.numOfHumans);
+            this.CurrentPlayer = this.Players[this.CurrentPlayerIndex];
+            if(!this.CurrentPlayer.isAWinner()){
+                foundPlayer = true;
+            }
+        }
     }
 
     startTurn() {
@@ -70,6 +76,10 @@ class Players {
 
     getCurrentPlayerId(){
         return this.CurrentPlayer.getId();
+    }
+
+    getPlayerById(playerId){
+        return this.Players.find(player => player.getId() === playerId);
     }
 
 }

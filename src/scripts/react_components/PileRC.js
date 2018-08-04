@@ -24,9 +24,9 @@ class PileRC extends React.Component {
                 transform: `rotate(${angle}deg)`,
                 margin: `${top}px ${bottom}px ${left}px ${right}px`
             };
-            let cardAttributes = this.props.cards[i].getAttributes();
+            let cardAttributes = this.props.cards[i].cardAtrribute;
 
-            cardsElems.push(<CardRC key={i} arrributes={`${cardAttributes} overLapCard`} style={cardStyle}/>);
+            cardsElems.push(<CardRC key={i} arrributes={`card ${cardAttributes} overLapCard`} style={cardStyle}/>);
         }
         return (
 

@@ -7,6 +7,7 @@ class Player {
         this.Playing = false;
         this.Cards = [];
         this.PlayerId = i_PlayerId; // todo: PlayerId == PlayerName
+        this.Winner = false;
         this.Stats = new Stats();
         this.startYourTurn = null;
         this.endYourTurn = null;
@@ -86,6 +87,16 @@ class Player {
     setPlayingToFalse() {
         this.Playing = false;
     }
+
+    setToWinner(winnerIndex){
+        this.Winner = true;
+        this.Stats.setWinnerIndex(winnerIndex);
+    }
+
+    isAWinner(){
+        return this.Winner;
+    }
+
 }
 
 

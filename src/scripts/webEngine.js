@@ -22,7 +22,8 @@ let eStat = {
     "normal": 0,
     "showError": 1,
     "showColorPicker": 2,
-    "showEndGame": 3
+    "showEndGame": 3,
+    "winner": 4
 };
 
 class WebEngine {
@@ -37,9 +38,10 @@ class WebEngine {
         //todo: Id == game id / session id
         this.Id = id;
         this.stat = eStat["normal"];
+        this.winnersCounter = 0;
     }
 
-    initEngine(i_PlayersArray){
+    initEngine(i_PlayersArray) {
         g_timeCounter = 0;
         g_timeInterval = setInterval(timer, 1000);
         this.Running = true; // will enable/disable click events
@@ -47,7 +49,8 @@ class WebEngine {
         this.Pile.init(this.Deck);
         this.Players.init(this, this.Pile, this.Deck, i_PlayersArray);
         this.ActionManager.init();
-
+        this.stat = eStat["normal"];
+        this.winnersCounter = 0;
 
         //todo: flag "normal"
         this.stat = eStat["normal"];
@@ -58,43 +61,96 @@ class WebEngine {
     }
 
     //if the current player ask for stat return game current stat else return normal
-    stat(playerId){
+    GetStat(playerId) {
         let resultStat = eStat["normal"];
-        if(playerId === this.Players.getCurrentPlayerIndex()){
-            resultStat =  this.stat;
+
+        if (playerId === this.Players.getCurrentPlayerId()) {
+            resultStat = this.stat;
             this.stat = eStat["normal"];
+        }
+        else{
+            const player = this.Players.getPlayerById(playerId);
+            if(player && player.isAWinner()){
+                resultStat = eStat['winner'];
+            }
         }
         return resultStat;
     }
 
-    Id(){
+    GetId() {
         return this.Id;
     }
 
-    GetPlayerById(playerId){
-        let playersList = this.Players.getPlayersList();
-        return playersList.find(player => player.getId === playerId);
+    GetCurrentPlayerId(){
+        const currPlayer = this.Players.getCurrentPlayer();
+        return currPlayer.getId(); //return the current player Name (id) 
     }
 
-    GetDeckById(playerId){
+    GetOpponentNamesList(playerId){
+        const playerList = this.Players.getPlayersList();
+        const opponentList = [];
+        playerList.forEach(player =>{
+            if(player.getId() != playerId){
+                let  opponent = {
+                    name: player.getId(),
+                    numOfCards: player.getCards().length
+                };
+                opponentList.push(opponent);
+            }
+        });
+        return opponentList;
+    }
+
+    GetPlayerById(playerId) {
         let playersList = this.Players.getPlayersList();
-        const player = playersList.find(player => player.getId === playerId);
-        if(!player) return null;
+        return playersList.find(player => player.getId() === playerId);
+    }
+
+    GetDeckById(playerId) {
+        let playersList = this.Players.getPlayersList();
+        const player = playersList.find(player => player.getId() === playerId);
+        if (!player) return null;
         return this.Deck;
     }
 
-    GetPileById(playerId){
+    GetPileById(playerId) {
         let playersList = this.Players.getPlayersList();
-        const player = playersList.find(player => player.getId === playerId);
-        if(!player) return null;
+        const player = playersList.find(player => player.getId() === playerId);
+        if (!player) return null;
         return this.Pile;
     }
 
-    GetStatsById(playerId){
+    GetStatsById(playerId) {
         let playersList = this.Players.getPlayersList();
-        const player = playersList.find(player => player.getId === playerId);
-        if(!player) return null;
+        const player = playersList.find(player => player.getId() === playerId);
+        if (!player) return null;
         return player.getStats();
+    }
+
+    GetStatusList() {
+
+        let playersList = this.Players.getPlayersList();
+        let statsList = [];
+        playersList.forEach((player) =>{ 
+
+            let statsObj = {
+                name: player.getId(),
+                stats: player.getStatus()
+            }
+
+            statsList.push(statsObj);
+        });
+        statsList.sort((s1, s2) => { //sort function
+            const winIndexP1 = s1.getWinnerIndex();
+            const winIndexP2 = s2.getStats().getWinnerIndex();
+            if (winIndexP1 < winIndexP2)
+                return -1;
+            if (winIndexP1 > winIndexP2)
+                return 1;
+            return 0;
+        });
+
+        return statsList;
     }
 
     hasMoreCards(i_CurrPlayer) {
@@ -112,7 +168,8 @@ class WebEngine {
         }
 
         return result;
-    };
+    }
+    ;
 
     hasMoreOptions(i_CurrPlayer) {
         let result = false;
@@ -164,7 +221,7 @@ class WebEngine {
 
     Deck_OnClick(playerId) {
 
-        if(playerId === this.Players.getCurrentPlayerId()) { //todo: if the current player click the deck else do nothing.
+        if (playerId === this.Players.getCurrentPlayerId()) { //todo: if the current player click the deck else do nothing.
             if (this.Running) {
                 let isNoMoreOptionsToPlay = !this.hasMoreOptions(this.Players.getCurrentPlayer());
                 if (isNoMoreOptionsToPlay) {
@@ -177,7 +234,8 @@ class WebEngine {
                 }
             }
         }
-    };
+    }
+    ;
 
     DeckClick() {
 
@@ -206,27 +264,28 @@ class WebEngine {
         //let endGame = false;
         //updateByRef(showError, showColorPicker, endGame);
         this.Players.startTurn();
-    };
+    }
+    ;
 
     static getTimer() {
         return g_timeCounter;
     }
 
-    //info:
-    //-1 = falid
-    // 0 = added card
-    // 1 = change color
-    // 2 = taki
-    // // 3 = stop
-    Card_OnClick(playerId, cardIndex) { //todo: change to cardIndex and player id
-        
-        if(playerId === this.Players.getCurrentPlayerId()) {
+//info:
+//-1 = falid
+// 0 = added card
+// 1 = change color
+// 2 = taki
+// // 3 = stop
+    Card_OnClick(playerId, cardIndex) { //todo: if it's a changeColor click ==> cardIndex == 'color'
+
+        if (playerId === this.Players.getCurrentPlayerId()) {
             if (this.Running) {
-                //let cardIndex = event.target.id;
                 this.CardClick(cardIndex);
             }
         }
-    };
+    }
+
 
     CardClick(i_CardIndex) {
         this.startTurn(i_CardIndex);
@@ -235,25 +294,37 @@ class WebEngine {
         if (this.Running) {
             this.Players.startTurn();
         }
-    };
+    }
+
 
     update() {
-        let winnerIndex = this.checkForWinner();
+        let winnerIndex = this.checkForWinner(); //return the current winner or null
         if (winnerIndex != null) {//somebody won
-            clearInterval(g_timeInterval);
-            this.Running = false;
-
+            this.winnersCounter++;
+            const playersList = this.Players.getPlayersList();
+            const winnerPlayer = playersList[winnerIndex];  //get the winner from player array
+            winnerPlayer.setToWinner(this.winnersCounter); //set the player winner index
+            if (this.winnersCounter === playersList - 1) { //only the loser didn't win
+                playersList.forEach(player => {
+                    if (player.getStats().getWinnerIndex() === -1) { //is the losser
+                        player.getStats().setWinnerIndex(playersList.length); //set his winner index to last player
+                    }
+                });
+                clearInterval(g_timeInterval);
+                this.Running = false;
+                this.stat = eStat["showEndGame"];
+            }
             //todo: flag "endGame"
-            this.stat = eStat["showEndGame"];
             // let showError = false;
             // let showColorPicker = false;
             // let endGame = true;
             // updateByRef(showError, showColorPicker, endGame);
         }
-    };
+    }
 
-    onQuitClick(){
-        let winnerIndex = 1; //bot
+
+    onQuitClick() {
+        //let winnerIndex = 1; //bot
 
         //todo: flag "endGame"
         this.stat = eStat["showEndGame"];
@@ -320,7 +391,7 @@ class WebEngine {
                 this.ActionManager.AddCardToPileWhen2Plus(currPlayer, card);
                 break;
         }
-    };
+    }
 
     endTurn() {
         //render end

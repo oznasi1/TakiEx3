@@ -8,10 +8,20 @@ class DeckRC extends React.Component {
     constructor(args) {
         super(args);
         this.handleDeckClick = this.handleDeckClick.bind(this);
+        this.fetchDeckClick= this.fetchDeckClick.bind(this);
     }
 
-    handleDeckClick(e) {
-        engine.Deck_OnClick(e);
+    handleDeckClick(gameName,playerName) {
+        this.fetchDeckClick(gameName,playerName);
+    }
+
+    fetchDeckClick(gameName,playerName){
+        return fetch(`/engine/events/DeckClick/${gameName}/${playerName}`, { method: 'POST', credentials: 'include' })
+        .then(response => {
+            if (!response.ok) {
+                throw response;
+            }
+        });
     }
 
     render() {
@@ -25,7 +35,7 @@ class DeckRC extends React.Component {
             cardsElems.push(<CardRC key={i} arrributes={`card card_back overLapCard`} style={cardStyle}/>);
         }
         return (
-            <div id="deck" onClick={this.handleDeckClick}>
+            <div id="deck" onClick={()=>this.handleDeckClick(this.props.gameName,this.props.playerName)}>
                 {cardsElems}
             </div>
         );
