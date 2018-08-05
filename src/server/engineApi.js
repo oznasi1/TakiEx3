@@ -86,7 +86,7 @@ router.delete('/games/:gameId', (req, res) => {
 //todo: <Events>
 
 // Card Click Event
-router.post('events/CardClick/:gameId/:playerId/:cardIndex', (req, res) => {
+router.post('/events/CardClick/:gameId/:playerId/:cardIndex', (req, res) => {
     const gameId = req.params.gameId;
     const game = gamesList.find(game => game.GetId() === gameId);
     if (!game) return res.status(400).send("Error - gameId not found.");
@@ -97,7 +97,7 @@ router.post('events/CardClick/:gameId/:playerId/:cardIndex', (req, res) => {
 });
 
 // Deck Click Event
-router.post('events/DeckClick/:gameId/:playerId/', (req, res) => {
+router.post('/events/DeckClick/:gameId/:playerId/', (req, res) => {
     const gameId = req.params.gameId;
     const game = gamesList.find(game => game.GetId() === gameId);
     if (!game) return res.status(400).send("Error - gameId not found.");

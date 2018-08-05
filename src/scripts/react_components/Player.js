@@ -15,14 +15,14 @@ class Player extends React.Component {
         //engine.Card_OnClick(e);
         this.fetchPlayerClick(gameName,playerName, cardIndex);
     }
-//router.post('events/CardClick/:gameId/:playerId/:cardIndex', (req, res) => {
 
     fetchPlayerClick(gameName,playerName, cardIndex){
-        return fetch(`/engine/events/CardClick/${gameName}/${playerName}/${cardIndex}`, { method: 'POST', credentials: 'include' })
+        fetch(`/engine/events/CardClick/${gameName}/${playerName}/${cardIndex}`, { method: 'POST', credentials: 'include' })
         .then(response => {
-            if (!response.ok) {
-                throw response;
-            }
+            // if (!response.ok) {
+            //     throw response;
+            // }
+            return response;
         });
     }
 
@@ -31,7 +31,7 @@ class Player extends React.Component {
         var margin = 0;
         let cardAttributes=null;
         let size=this.props.cards ? this.props.cards.length: this.props.numOfCards;
-        for (var i = 0; i < size; i++) {
+        for (let i = 0; i < size; i++) {
             margin += (80 / size);
             var cardStyle = {
                 marginLeft: `${margin}%`,

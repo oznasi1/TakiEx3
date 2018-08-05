@@ -42,7 +42,7 @@ function updateByRef(newShowError, newShowColorPicker, newEndGame, newIsWinner) 
     fetchDeckFromServer();
     fetchPileFromServer();
     fetchPlayerFromServer();
-    fetchPlayerStatsFromServer();
+    //fetchPlayerStatsFromServer();
     fetchOpponentFromServer();
     
     listener.setState({
@@ -110,7 +110,6 @@ function updateByRef(newShowError, newShowColorPicker, newEndGame, newIsWinner) 
 }
 
 function fetchPlayerStatsFromServer(){
-
     return fetch(`/engine/render/stats/${gameName}/${playerName}`, { method: 'GET', credentials: 'include' })
       .then(response => {
           if (!response.ok) {
@@ -128,7 +127,7 @@ function fetchCurrentPlayerIndex(){
         if (!response.ok) {
             throw response;
         }
-        return response.json();
+        return response;//.json();
     }).then((currPlayerTurnName)=>{
         listener.setState({playerTurn:currPlayerTurnName});
     });
