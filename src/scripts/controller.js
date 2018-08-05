@@ -115,7 +115,7 @@ function fetchPlayerStatsFromServer(){
           if (!response.ok) {
               throw response;
           }
-          return response.json();
+          return response;
       }).then((playerStats)=>{
           listener.setState({stats:playerStats});
       });
@@ -127,7 +127,7 @@ function fetchCurrentPlayerIndex(){
         if (!response.ok) {
             throw response;
         }
-        return response;//.json();
+        return response.json();
     }).then((currPlayerTurnName)=>{
         listener.setState({playerTurn:currPlayerTurnName});
     });

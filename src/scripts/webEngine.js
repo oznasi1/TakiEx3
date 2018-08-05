@@ -66,7 +66,9 @@ class WebEngine {
 
         if (playerId === this.Players.getCurrentPlayerId()) {
             resultStat = this.stat;
-            this.stat = eStat["normal"];
+            if(this.stat != eStat["showColorPicker"]){
+                this.stat = eStat["normal"];
+            }          
         }
         else{
             const player = this.Players.getPlayerById(playerId);
@@ -368,6 +370,7 @@ class WebEngine {
                 topPileCard.setAttributes("card_change_" + i_CardIndex);
                 topPileCard.setColor(i_CardIndex);
                 this.ActionManager.setDefaultState();  //return to normal state & isValidCard = true
+                this.stat = eStat["normal"];
                 break;
 
             case eGameState["taki"]:

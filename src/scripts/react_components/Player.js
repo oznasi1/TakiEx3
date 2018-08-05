@@ -12,7 +12,6 @@ class Player extends React.Component {
     }
 
     handlePlayerClick(gameName,playerName,cardIndex) {
-        //engine.Card_OnClick(e);
         this.fetchPlayerClick(gameName,playerName, cardIndex);
     }
 

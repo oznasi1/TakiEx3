@@ -12,6 +12,7 @@ import { PileRC } from "./PileRC.js";
 import { Stats } from "./Stats.js";
 
 
+var boardInterval;
 
 class Game extends React.Component { //contains all - players,deck,pile,stats
     constructor(args) {
@@ -33,9 +34,9 @@ class Game extends React.Component { //contains all - players,deck,pile,stats
             numOfPlayerTwoCards: 8,    //other players except me 
             numOfPlayerThreeCards: 8,  //
             numOfPlayerFourCards: 8,   //
-            isWinner:false,
+            isWinner: false,
             //---- 
-
+            playerTurn:"",
             playerCards: [],//my cards
             deck: [],
             pile: [],
@@ -48,8 +49,6 @@ class Game extends React.Component { //contains all - players,deck,pile,stats
                 avgTime: 0,
                 lastCardCount: 0,
             },
-
-            playerTurn: "",
 
             playerOneStats: {//the old player 
                 name: "P1: amit",
@@ -100,7 +99,7 @@ class Game extends React.Component { //contains all - players,deck,pile,stats
     componentWillMount() {
         init(this);
         initGameEngine(this.state.gameId, this.state.playerId);
-        setInterval(this.updateBoard, 1000);
+        boardInterval = setInterval(this.updateBoard, 500);
     }
 
     updateBoard() {
@@ -114,6 +113,7 @@ class Game extends React.Component { //contains all - players,deck,pile,stats
                     updateByRef(true, false, false, false);// show error pop-up
                     break;
                 case 2:
+                    // clearInterval(boardInterval);
                     updateByRef(false, true, false, false);// show color picker
                     break;
                 case 3:
@@ -152,25 +152,34 @@ class Game extends React.Component { //contains all - players,deck,pile,stats
             return (
                 <div id="gameWrapper">
                     <Player id="bot" numOfCards={this.state.numOfPlayerTwoCards} />
+                    <div>current player turn: {this.state.playerTurn}</div>
                     <div>name:{this.props.namesList[1]}</div>
-                    <DeckRC cards={this.state.deck} />
-                    <PileRC cards={this.state.pile} toShowError={this.state.showError}
-                        toShowColorPicker={this.state.showColorPicker} handler={this.props.colorPickerHandler} />
+                    <DeckRC cards={this.state.deck}
+                        gameName={this.state.gameId}
+                        playerName={this.state.playerId} />
+                    <PileRC cards={this.state.pile}
+                        toShowError={this.state.showError}
+                        toShowColorPicker={this.state.showColorPicker}
+                        handler={this.props.colorPickerHandler}
+                        gameName={this.state.gameId}
+                        playerName={this.state.playerId}
+                        boardFunc = {this.updateBoard} />
                     <Player id="player"
                         cards={this.state.playerCards}
                         gameName={this.state.gameId}
                         playerName={this.state.playerId} />
-                    <div>name:{this.props.namesList[0]}</div>
+                    <div>name:{this.props.namesList[0]}
+                        </div>
                 </div>
             );
         }
         else {
             return (
                 <div id="winLose">
-                    <div id="youLostOrWon">{this.state.winLose.winnerIndex == 0 ? "You won!!!" : "You lost!!!"}</div>
+                    <div id="youLostOrWon">{this.state.isWinner ? "You won!!!" : "You lost!!!"}</div>
                     <div id="timer">The game was {this.state.winLose.timer} seconds</div>
                     <Stats id="playerStats" stat={this.state.stats} />
-                    <Stats id="botStats" stat={this.state.winLose.botStats} />
+                    <Stats id="botStats" stat={this.state.playerTwoStats} />
                     <div id="prevNextButtons">
                         <button id="restart" onClick={this.handleRestart}>Restart</button>
                     </div>

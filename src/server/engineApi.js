@@ -200,7 +200,7 @@ router.get('/render/currentPlayer/:gameId', (req, res) => {
     if (!game) return res.status(400).send("Error - gameId not found.");
     const currPlayerName = game.GetCurrentPlayerId();
     if (!currPlayerName) return res.status(400).send("Error - currPlayerIndex not found.");
-    res.send(200, currPlayerName);
+    res.send(200, JSON.stringify(currPlayerName));
 });
 
 //todo: </render>

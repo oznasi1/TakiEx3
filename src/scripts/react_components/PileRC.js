@@ -1,9 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-import {ShowError} from "./ShowError.js";
-import {PicColor} from "./PicColor.js";
-import {CardRC} from "./CardRC.js";
+import { ShowError } from "./ShowError.js";
+import { PicColor } from "./PicColor.js";
+import { CardRC } from "./CardRC.js";
 
 
 class PileRC extends React.Component {
@@ -15,29 +15,38 @@ class PileRC extends React.Component {
 
         var cardsElems = [];
         for (var i = 0; i < this.props.cards.length; i++) {
-            let top =  Math.floor(Math.random() * (4 - 1 + 1)) + 1;
-            let left = Math.floor(Math.random() * (4 - 1 + 1)) + 1;
-            let right = Math.floor(Math.random() * (4 - 1 + 1)) + 1;
-            let bottom = Math.floor(Math.random() * (4 - 1 + 1)) + 1;
-            let angle = Math.floor(Math.random() * (360 / i - 0 + 1)) + 0;
+            // let top =  Math.floor(Math.random() * (4 - 1 + 1)) + 1;
+            // let left = Math.floor(Math.random() * (4 - 1 + 1)) + 1;
+            // let right = Math.floor(Math.random() * (4 - 1 + 1)) + 1;
+            // let bottom = Math.floor(Math.random() * (4 - 1 + 1)) + 1;
+            // let angle = Math.floor(Math.random() * (360 / i - 0 + 1)) + 0;
+            let top = i * 1.1;
+            let left = i * 1.1;
+            let right = i * 1.1;
+            let bottom = i * 1.1;
+            let angle = 360 / (i * 15);
             var cardStyle = {
                 transform: `rotate(${angle}deg)`,
                 margin: `${top}px ${bottom}px ${left}px ${right}px`
             };
             let cardAttributes = this.props.cards[i].cardAtrribute;
 
-            cardsElems.push(<CardRC key={i} arrributes={`card ${cardAttributes} overLapCard`} style={cardStyle}/>);
+            cardsElems.push(<CardRC key={i} arrributes={`card ${cardAttributes} overLapCard`} style={cardStyle} />);
         }
         return (
 
             <div id="pile">
                 {cardsElems}
-                <ShowError enable={this.props.toShowError}/>
-                <PicColor enable={this.props.toShowColorPicker} handleColorPicker={this.props.handler}/>
+                <ShowError enable={this.props.toShowError} />
+                <PicColor enable={this.props.toShowColorPicker}
+                    handleColorPicker={this.props.handler}
+                    gameName={this.props.gameName}
+                    playerName={this.props.playerName}
+                    boardFunc = {this.boardFunc} />
             </div>
         )
             ;
     }
 }
 
-export{PileRC};
+export { PileRC };
