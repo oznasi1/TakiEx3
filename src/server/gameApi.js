@@ -114,6 +114,24 @@ gameApi.post('/', auth.userAuthentication, (req, res) => {
 		res.status(401).send(`faild to delete the game`);
 	});
 
+
+	gameApi.post('/:gameName/forceDelete', (req, res) => {
+
+		var gameIndex=-1;
+		for (let i = 0; i < activeGames.length; i++) {
+			if(activeGames[i].name==req.params.gameName){
+				gameIndex= i;
+		}}
+		if(gameIndex>=0){
+			//delete only if the user is the creator and the game is empty 
+			activeGames.splice(gameIndex, 1);
+			res.send(200);//succes
+		}
+		res.status(401).send(`faild to delete the game`);
+	});
+
+	
+
 	
 
 

@@ -7,14 +7,15 @@ const Stats = (props) => {
 
 
     var attribute = getTheRellevantAttribute(props.id);
-   
+
     return (
         <div id="stats">
             <div id={props.id}>
                 <img className={attribute}/>
+                <div id="name">name: {props.stat.name}</div>
                 <div id="numTurns">Number of turns: {props.stat.numOfTurs}</div>
-                <div id="avg_time">Average time per turn: {props.stat.avgTime} seconds</div>
-                <div id="last_one">Number of last card: {props.stat.lastCardCount}</div>
+                <div id="avg_time">Time per turn: {props.stat.avgTime}</div>
+                <div id="last_one">Last card count: {props.stat.lastCardCount}</div>
             </div>
         </div>
     );

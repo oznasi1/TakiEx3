@@ -44,6 +44,9 @@ class GameMenu extends React.Component {
         this.pullGameStatus = this.pullGameStatus.bind(this);
         this.renderThirdScreen = this.renderThirdScreen.bind(this);
         this.sortPlayersName = this.sortPlayersName.bind(this);
+        this.renderWatingRoom = this.renderWatingRoom.bind(this);
+        this.fetchKillGame = this.fetchKillGame.bind(this);
+        this.deleteGameHandleEndGame = this.deleteGameHandleEndGame.bind(this);
         //this.pullGames();
         //this.pullUsers(); // doesnt work here, only in succes login handler
         //this.getUserName();
@@ -65,7 +68,6 @@ class GameMenu extends React.Component {
                         users={this.state.users['users']}
                         games={this.state.games} pullGames={this.pullGames}
                         logoutHandler={this.logoutHandler}
-                        startGameFunc={this.startGame}
                         succesJoinHandler={this.succesJoinHandler} />
                 }
             }
@@ -77,8 +79,39 @@ class GameMenu extends React.Component {
                 gameId={this.state.currentGame.name}
                 playerId={this.state.currentUser.name}
                 namesList={this.sortPlayersName()}
-            />
+                lobbyReturn={() => {
+                    this.fetchKillGame().then(() => {
+                        this.quitGameHandle().then(()=>{
+                            this.pullGames();
+                            this.pullUsers();
+                            this.getUserName();
+                            //this.pullGameStatus();
+                            this.setState({ showGame: false, showLogin: false});
+                        })
+                        })
+                }} />
         }
+    }
+
+    deleteGameHandleEndGame() {
+        return fetch(`/games/${this.state.currentGame.name}/forceDelete`, { method: 'POST', body: this.state.currentUser.name, credentials: 'include' })
+            .then(response => {
+                if (!response.ok) {
+                    throw response;
+                }
+                return response;
+            })
+    }
+    renderWatingRoom() {
+        this.pullGames();
+        this.pullUsers();
+        this.getUserName();
+        return <WaitingRoom currentUser={this.state.currentUser}
+            users={this.state.users['users']}
+            games={this.state.games} pullGames={this.pullGames}
+            logoutHandler={this.logoutHandler}
+            succesJoinHandler={this.succesJoinHandler} />
+        //this.setState({ showGame: false, showLogin: false });
     }
 
     sortPlayersName() {
@@ -112,10 +145,20 @@ class GameMenu extends React.Component {
         )
     }
 
+    fetchKillGame() {
+        return fetch(`/engine/games/${this.state.gameId}`, { method: 'DELETE', credentials: 'include' })
+            .then(response => {
+                if (!response.ok) {
+                    throw response;
+                }
+                return response;
+            });
+    }
+
+
 
     createNewEngine(game) {
         let url = "";
-
         switch (game.numberOfPlayers) {
             case 2:
                 url = `/engine/games/${game.name}/${game.players[0].name}/${game.players[1].name}`;
@@ -139,13 +182,7 @@ class GameMenu extends React.Component {
 
     succesJoinHandler(game) {
         if (game.players.length === game.numberOfPlayers) {
-            // clearTimeout(this.pullUsers);
             this.createNewEngine(game);
-
-            // this.createNewEngine(game).then((engine) => {
-            //     this.setState({ showGame: true });
-            //     }
-            // );
         }
         this.setState({ showThirdScreen: true, currentGame: game });
     }
@@ -178,12 +215,14 @@ class GameMenu extends React.Component {
     }
 
     quitGameHandle() {
-        fetch(`/games/${this.state.currentGame.name}/logout`, { method: 'POST', body: JSON.stringify(this.state.currentUser), credentials: 'include' })
+        return fetch(`/games/${this.state.currentGame.name}/logout`, { method: 'POST', body: JSON.stringify(this.state.currentUser), credentials: 'include' })
             .then(response => {
                 if (!response.ok) {
                     console.log(`failed to logout user ${this.state.currentUser.name} `);
                 }
                 //this.setState(()=>({currentUser: {name:''}, showLogin: true}));
+                return response;
+            }).then(() => {
                 this.setState({ showThirdScreen: false });
             })
     }
@@ -268,8 +307,8 @@ class GameMenu extends React.Component {
                     clearInterval(gameInterval);
                     clearInterval(allGameIntreval);
                     this.setState({ showGame: true });
-                }else{
-                this.setState({ currentGame: game });
+                } else {
+                    this.setState({ currentGame: game });
                 }
 
             }

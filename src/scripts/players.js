@@ -4,7 +4,7 @@
 const Player = require('./player.js');
 
 let NUM_OF_CHANGE_COLOR_CARD = 4;
-let NUM_OF_STARTING_CARDS = 8;
+let NUM_OF_STARTING_CARDS = 1;
 
 class Players {
 

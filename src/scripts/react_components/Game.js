@@ -19,13 +19,14 @@ class Game extends React.Component { //contains all - players,deck,pile,stats
         super(args);
 
         this.colorPickerHandler = this.colorPickerHandler.bind(this)
-        this.handleRestart = this.handleRestart.bind(this);
+        //this.handleReturnLobby = this.handleReturnLobby.bind(this);
         this.handleQuitClick = this.handleQuitClick.bind(this);
         this.renderTwoPlayersScreen = this.renderTwoPlayersScreen.bind(this);
         this.renderThreePlayersScreen = this.renderThreePlayersScreen.bind(this);
         this.renderFourPlayersScreen = this.renderFourPlayersScreen.bind(this);
         this.updateBoard = this.updateBoard.bind(this);
         this.getCurrentGameStatFromServer = this.getCurrentGameStatFromServer.bind(this);
+        //this.fetchKillGame = this.fetchKillGame.bind(this);
 
         this.state = {
             numOfPlayers: this.props.numberOfPlayers,
@@ -36,28 +37,30 @@ class Game extends React.Component { //contains all - players,deck,pile,stats
             numOfPlayerFourCards: 8,   //
             isWinner: false,
             //---- 
-            playerTurn:"",
+            playerTurn: "",
             playerCards: [],//my cards
             deck: [],
             pile: [],
             showError: false,
             showColorPicker: false,
             endGame: false,
+            timer: 0,
 
             stats: {//current player 
+                name: "",
                 numOfTurs: 0,
                 avgTime: 0,
                 lastCardCount: 0,
             },
 
             playerOneStats: {//the old player 
-                name: "P1: amit",
+                name: "",
                 numOfTurs: 0,
                 avgTime: 0,
                 lastCardCount: 0,
             },
             playerTwoStats: {//the old bot 
-                name: "P2: oz",
+                name: "",
                 numOfTurs: 0,
                 avgTime: 0,
                 lastCardCount: 0,
@@ -74,21 +77,11 @@ class Game extends React.Component { //contains all - players,deck,pile,stats
                 avgTime: 0,
                 lastCardCount: 0,
             },
-            winLose: {
-                timer: 0,
-                winnerIndex: null,
-                botStats: null,
-            },
         }
     }
 
     handleQuitClick(e) {
         engine.onQuitClick();
-    }
-
-    handleRestart(e) {
-        this.setState({ endGame: false });
-        initGameEngine();
     }
 
     colorPickerHandler(e) {
@@ -103,7 +96,6 @@ class Game extends React.Component { //contains all - players,deck,pile,stats
     }
 
     updateBoard() {
-        //const stat = this.getCurrentGameStatFromServer();
         this.getCurrentGameStatFromServer().then((stat) => {
             switch (stat) {
                 case 0:
@@ -113,10 +105,10 @@ class Game extends React.Component { //contains all - players,deck,pile,stats
                     updateByRef(true, false, false, false);// show error pop-up
                     break;
                 case 2:
-                    // clearInterval(boardInterval);
                     updateByRef(false, true, false, false);// show color picker
                     break;
                 case 3:
+                    clearInterval(boardInterval);
                     updateByRef(false, false, true, false);// show end game & status
                     break;
                 case 4:
@@ -137,15 +129,17 @@ class Game extends React.Component { //contains all - players,deck,pile,stats
     }
 
     renderStats() {//render the stats of the player that is playing now 
-        if (this.state.playerIndex == 0)
-            return <Stats id={"playerStats"} stat={this.state.stats} />
-        else if (this.state.playerIndex == 1) {
-            return <Stats id={"botStats"} stat={this.state.stats} />;
+        if (this.state.stats.name === this.state.playerOneStats.name)
+            
+            return <Stats id={"playerStats"} stat={this.state.playerOneStats} />
+        else if (this.state.stats.name === this.state.playerTwoStats.name) {
+            return <Stats id={"botStats"} stat={this.state.playerTwoStats} />;
         }
-        else if (this.state.playerIndex == 2) {
-            return <Stats id={"playerThreeStats"} stat={this.state.stats} />;
-        } else return <Stats id={"playerFourStats"} stat={this.state.stats} />;
+        else if (this.state.stats.name === this.state.playerThreeStats.name) {
+            return <Stats id={"playerThreeStats"} stat={this.state.playerThreeStats} />;
+        } else return <Stats id={"playerFourStats"} stat={this.state.playerFourStats} />;
     }
+//Stats id={"playerStats"} stat={this.state.stats} />   ---->working
 
     renderTwoPlayersScreen() {
         if (!this.state.endGame) {
@@ -153,6 +147,7 @@ class Game extends React.Component { //contains all - players,deck,pile,stats
                 <div id="gameWrapper">
                     <Player id="bot" numOfCards={this.state.numOfPlayerTwoCards} />
                     <div>current player turn: {this.state.playerTurn}</div>
+                    <div>other players:</div>
                     <div>name:{this.props.namesList[1]}</div>
                     <DeckRC cards={this.state.deck}
                         gameName={this.state.gameId}
@@ -163,30 +158,42 @@ class Game extends React.Component { //contains all - players,deck,pile,stats
                         handler={this.props.colorPickerHandler}
                         gameName={this.state.gameId}
                         playerName={this.state.playerId}
-                        boardFunc = {this.updateBoard} />
+                        boardFunc={this.updateBoard} />
                     <Player id="player"
                         cards={this.state.playerCards}
                         gameName={this.state.gameId}
                         playerName={this.state.playerId} />
-                    <div>name:{this.props.namesList[0]}
-                        </div>
+                    <Stats id={"playerStats"} stat={this.state.stats} />
+                    {this.state.isWinner ?
+                        <button className="buttons" id="returnLobby" onClick={() => this.props.lobbyReturn()}>return to lobby</button> : null}
                 </div>
             );
         }
         else {
+            //this.fetchKillGame();
             return (
                 <div id="winLose">
                     <div id="youLostOrWon">{this.state.isWinner ? "You won!!!" : "You lost!!!"}</div>
-                    <div id="timer">The game was {this.state.winLose.timer} seconds</div>
-                    <Stats id="playerStats" stat={this.state.stats} />
+                    <div id="timer">The game was {this.state.timer} seconds</div>
+                    <Stats id="playerStats" stat={this.state.playerOneStats} />
                     <Stats id="botStats" stat={this.state.playerTwoStats} />
                     <div id="prevNextButtons">
-                        <button id="restart" onClick={this.handleRestart}>Restart</button>
+                        <button className="buttons" id="returnLobby" onClick={() => this.props.lobbyReturn()}>return to lobby</button>
                     </div>
                 </div>
             );
         }
     }
+
+    // fetchKillGame() {
+    //     return fetch(`/engine/games/${this.state.gameId}`, { method: 'DELETE', credentials: 'include' })
+    //         .then(response => {
+    //             if (!response.ok) {
+    //                 throw response;
+    //             }
+    //             return response;
+    //         });
+    // }
 
     renderThreePlayersScreen() {
         if (!this.state.endGame) {
@@ -194,33 +201,40 @@ class Game extends React.Component { //contains all - players,deck,pile,stats
                 <div id="gameWrapper">
                     <Player id="playerThree" numOfCards={this.state.numOfPlayerTwoCards} />
                     <Player id="playerFour" numOfCards={this.state.numOfPlayerThreeCards} />
-                    <DeckRC cards={this.state.deck} />
-                    <PileRC cards={this.state.pile} toShowError={this.state.showError}
-                        toShowColorPicker={this.state.showColorPicker} handler={this.props.colorPickerHandler} />
-                    <Player id="player" cards={this.state.playerCards} />
-                    <Stats id={this.state.playerIndex ? "botStats" : "playerStats"} stat={this.state.stats} />
+                    <div>current player turn: {this.state.playerTurn}</div>
+                    <div>other players:</div>
+                    <div>name:{this.props.namesList[1]}</div>
+                    <div>name:{this.props.namesList[2]}</div>
+                    <DeckRC cards={this.state.deck}
+                        gameName={this.state.gameId}
+                        playerName={this.state.playerId} />
+                    <PileRC cards={this.state.pile}
+                        toShowError={this.state.showError}
+                        toShowColorPicker={this.state.showColorPicker}
+                        handler={this.props.colorPickerHandler}
+                        gameName={this.state.gameId}
+                        playerName={this.state.playerId}
+                        boardFunc={this.updateBoard} />
+                    <Player id="player"
+                        cards={this.state.playerCards}
+                        gameName={this.state.gameId}
+                        playerName={this.state.playerId} />
+                    <Stats id={"playerStats"} stat={this.state.stats} />
+                    {this.state.isWinner ?
+                        <button className="buttons" id="returnLobby" onClick={() => this.props.lobbyReturn()}>return to lobby</button> : null}
                 </div>
             );
-            /*return (
-                <div id="gameWrapper">
-                    <Player id="bot" cards={this.state.botCards}/>
-                    <DeckRC cards={this.state.deck}/>
-                    <PileRC cards={this.state.pile} toShowError={this.state.showError}
-                            toShowColorPicker={this.state.showColorPicker} handler={this.props.colorPickerHandler}/>
-                    <Player id="player" cards={this.state.playerCards}/>
-                    <Stats id={this.state.playerIndex ? "botStats" :"playerStats"} stat={this.state.stats}/>
-                </div>
-            );*/
         }
         else {
             return (
                 <div id="winLose">
-                    <div id="youLostOrWon">{this.state.winLose.winnerIndex == 0 ? "You won!!!" : "You lost!!!"}</div>
-                    <div id="timer">The game was {this.state.winLose.timer} seconds</div>
-                    <Stats id="playerStats" stat={this.state.stats} />
-                    <Stats id="botStats" stat={this.state.winLose.botStats} />
+                    <div id="youLostOrWon">{this.state.isWinner ? "You won!!!" : "You lost!!!"}</div>
+                    <div id="timer">The game was {this.state.timer} seconds</div>
+                    <Stats id="playerStats" stat={this.state.playerOneStats} />
+                    <Stats id="botStats" stat={this.state.playerTwoStats} />
+                    <Stats id="playerThreeStats" stat={this.state.playerThreeStats} />
                     <div id="prevNextButtons">
-                        <button id="restart" onClick={this.handleRestart}>Restart</button>
+                        <button className="buttons" id="returnLobby" onClick={() => this.props.lobbyReturn()}>return to lobby</button>
                     </div>
                 </div>
             );
@@ -234,28 +248,48 @@ class Game extends React.Component { //contains all - players,deck,pile,stats
                     <Player id="bot" numOfCards={this.state.numOfPlayerTwoCards} />
                     <Player id="playerThree" numOfCards={this.state.numOfPlayerThreeCards} />
                     <Player id="playerFour" numOfCards={this.state.numOfPlayerFourCards} />
-                    <DeckRC cards={this.state.deck} />
-                    <PileRC cards={this.state.pile} toShowError={this.state.showError}
-                        toShowColorPicker={this.state.showColorPicker} handler={this.props.colorPickerHandler} />
-                    <Player id="player" cards={this.state.playerCards} />
-                    <Stats id={this.state.playerIndex ? "botStats" : "playerStats"} stat={this.state.stats} />
+                    <div>current player turn: {this.state.playerTurn}</div>
+                     <div>other players:</div>
+                     <div>name:{this.props.namesList[1]}</div>
+                     <div>name:{this.props.namesList[2]}</div>
+                     <div>name:{this.props.namesList[3]}</div>
+                     <DeckRC cards={this.state.deck}
+                         gameName={this.state.gameId}
+                         playerName={this.state.playerId} />
+                    <PileRC cards={this.state.pile}
+                        toShowError={this.state.showError}
+                        toShowColorPicker={this.state.showColorPicker}
+                        handler={this.props.colorPickerHandler}
+                        gameName={this.state.gameId}
+                        playerName={this.state.playerId}
+                        boardFunc={this.updateBoard} />
+                    <Player id="player"
+                        cards={this.state.playerCards}
+                        gameName={this.state.gameId}
+                        playerName={this.state.playerId} />
+                    <Stats id={"playerStats"} stat={this.state.stats} />
+                                     {this.state.isWinner ?
+                        <button className="buttons" id="returnLobby" onClick={() => this.props.lobbyReturn()}>return to lobby</button> : null}
                 </div>
             );
         }
         else {
             return (
                 <div id="winLose">
-                    <div id="youLostOrWon">{this.state.winLose.winnerIndex == 0 ? "You won!!!" : "You lost!!!"}</div>
-                    <div id="timer">The game was {this.state.winLose.timer} seconds</div>
-                    <Stats id="playerStats" stat={this.state.stats} />
-                    <Stats id="botStats" stat={this.state.winLose.botStats} />
+                    <div id="youLostOrWon">{this.state.isWinner  ? "You won!!!" : "You lost!!!"}</div>
+                    <div id="timer">The game was {this.state.timer} seconds</div>
+                    <Stats id="playerStats" stat={this.state.playerOneStats} />
+                    <Stats id="botStats" stat={this.state.playerTwoStats} />
+                    <Stats id="playerThreeStats" stat={this.state.playerThreeStats} />
+                    <Stats id="playerFourStats" stat={this.state.playerFourStats} />
                     <div id="prevNextButtons">
-                        <button id="restart" onClick={this.handleRestart}>Restart</button>
+                       <button className="buttons" id="returnLobby" onClick={() => this.props.lobbyReturn()}>return to lobby</button>
                     </div>
                 </div>
             );
         }
     }
+
 
     render() {
         if (this.state.numOfPlayers == 2) {
@@ -271,12 +305,3 @@ class Game extends React.Component { //contains all - players,deck,pile,stats
 }
 
 export { Game };
-
-/*      <Player id="bot" cards={this.state.botCards}/>
-                    <div>name:{"oznasi1"}</div>
-                    <DeckRC cards={this.state.deck}/>
-                    <PileRC cards={this.state.pile} toShowError={this.state.showError}
-                            toShowColorPicker={this.state.showColorPicker} handler={this.props.colorPickerHandler}/>
-                    <Player id="player" cards={this.state.playerCards}/>
-                    <div>name:{"lior2"}</div>
-                    {this.renderStats()} */

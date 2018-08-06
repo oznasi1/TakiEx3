@@ -39,6 +39,7 @@ class WebEngine {
         this.Id = id;
         this.stat = eStat["normal"];
         this.winnersCounter = 0;
+        this.exitCounter = 0;
     }
 
     initEngine(i_PlayersArray) {
@@ -51,7 +52,7 @@ class WebEngine {
         this.ActionManager.init();
         this.stat = eStat["normal"];
         this.winnersCounter = 0;
-
+        this.exitCounter = this.Players.getPlayersList().length;
         //todo: flag "normal"
         this.stat = eStat["normal"];
         //let showError = false;
@@ -60,22 +61,37 @@ class WebEngine {
         //updateByRef(showError, showColorPicker, endGame);
     }
 
+    // if player exit the game the counter will -- and when counter is 0 we can delete the game
+    SetPlayerExit(){
+        this.exitCounter--;
+    }
+
+    IsGameReadyForDelete(){
+        return this.exitCounter === 0;
+    }
+
     //if the current player ask for stat return game current stat else return normal
     GetStat(playerId) {
         let resultStat = eStat["normal"];
 
-        if (playerId === this.Players.getCurrentPlayerId()) {
-            resultStat = this.stat;
-            if(this.stat != eStat["showColorPicker"]){
-                this.stat = eStat["normal"];
-            }          
-        }
-        else{
-            const player = this.Players.getPlayerById(playerId);
-            if(player && player.isAWinner()){
-                resultStat = eStat['winner'];
+        if (this.stat !== eStat["showEndGame"]) {
+
+            if (playerId === this.Players.getCurrentPlayerId()) {
+                resultStat = this.stat;
+                if (this.stat !== eStat["showColorPicker"]) {
+                    this.stat = eStat["normal"];
+                }
             }
-        }
+            else {
+                const player = this.Players.getPlayerById(playerId);
+                if (player && player.isAWinner()) {
+                    resultStat = eStat['winner'];
+                }
+            }
+        }else{ //the game ended
+            resultStat = this.stat;
+        } 
+
         return resultStat;
     }
 
@@ -83,17 +99,17 @@ class WebEngine {
         return this.Id;
     }
 
-    GetCurrentPlayerId(){
+    GetCurrentPlayerId() {
         const currPlayer = this.Players.getCurrentPlayer();
         return currPlayer.getId(); //return the current player Name (id) 
     }
 
-    GetOpponentNamesList(playerId){
+    GetOpponentNamesList(playerId) {
         const playerList = this.Players.getPlayersList();
         const opponentList = [];
-        playerList.forEach(player =>{
-            if(player.getId() != playerId){
-                let  opponent = {
+        playerList.forEach(player => {
+            if (player.getId() !== playerId) {
+                let opponent = {
                     name: player.getId(),
                     numOfCards: player.getCards().length
                 };
@@ -133,18 +149,18 @@ class WebEngine {
 
         let playersList = this.Players.getPlayersList();
         let statsList = [];
-        playersList.forEach((player) =>{ 
+        playersList.forEach((player) => {
 
             let statsObj = {
                 name: player.getId(),
-                stats: player.getStatus()
-            }
+                stats: player.getStats()
+            };
 
             statsList.push(statsObj);
         });
         statsList.sort((s1, s2) => { //sort function
-            const winIndexP1 = s1.getWinnerIndex();
-            const winIndexP2 = s2.getStats().getWinnerIndex();
+            const winIndexP1 = s1.stats.getWinnerIndex();
+            const winIndexP2 = s2.stats.getWinnerIndex();
             if (winIndexP1 < winIndexP2)
                 return -1;
             if (winIndexP1 > winIndexP2)
@@ -273,12 +289,16 @@ class WebEngine {
         return g_timeCounter;
     }
 
-//info:
-//-1 = falid
-// 0 = added card
-// 1 = change color
-// 2 = taki
-// // 3 = stop
+    GetTimer() {
+        return g_timeCounter;
+    }
+
+    //info:
+    //-1 = falid
+    // 0 = added card
+    // 1 = change color
+    // 2 = taki
+    // // 3 = stop
     Card_OnClick(playerId, cardIndex) { //todo: if it's a changeColor click ==> cardIndex == 'color'
 
         if (playerId === this.Players.getCurrentPlayerId()) {
@@ -306,7 +326,7 @@ class WebEngine {
             const playersList = this.Players.getPlayersList();
             const winnerPlayer = playersList[winnerIndex];  //get the winner from player array
             winnerPlayer.setToWinner(this.winnersCounter); //set the player winner index
-            if (this.winnersCounter === playersList - 1) { //only the loser didn't win
+            if (this.winnersCounter === playersList.length - 1) { //only the loser didn't win
                 playersList.forEach(player => {
                     if (player.getStats().getWinnerIndex() === -1) { //is the losser
                         player.getStats().setWinnerIndex(playersList.length); //set his winner index to last player
@@ -367,7 +387,7 @@ class WebEngine {
                 var newPileColor = i_CardIndex; /////////in this call i_CardIndex == new color
                 this.Pile.setTopCardColor(newPileColor);
                 var topPileCard = this.Pile.getTopCardFromPile();
-                topPileCard.setAttributes("card_change_" + i_CardIndex);
+                topPileCard.setAttributes("card_change_" + i_CardIndex)
                 topPileCard.setColor(i_CardIndex);
                 this.ActionManager.setDefaultState();  //return to normal state & isValidCard = true
                 this.stat = eStat["normal"];
@@ -401,7 +421,7 @@ class WebEngine {
         let turnResult = this.ActionManager.getTurnResult();
 
         //todo: flag "normal"
-        this.stat = eStat["normal"];
+        //this.stat = eStat["normal"];
         // var showError = false;
         // var showColorPicker = false;
         // var endGame = false;

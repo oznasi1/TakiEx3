@@ -30,6 +30,7 @@ class Card {
 
     setAttributes(newAttribute) {
         this.attributes[1] = newAttribute;
+        this.cardAtrribute = newAttribute;
     }
 
     getColor() {
