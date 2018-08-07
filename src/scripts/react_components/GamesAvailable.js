@@ -27,8 +27,10 @@ import ReactDOM from "react-dom";
       fetch(`/games/${gameName}/delete`, {method: 'POST',body:user.name, credentials: 'include'})
       .then(response => {
           if (!response.ok) {
-              alert(`failed to delete`);                
+              alert("You didnt create me!");
+              throw response;               
           }
+          return response;
       })
     }
 

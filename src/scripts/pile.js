@@ -9,8 +9,21 @@ class Pile {
     }
 
     init(i_Deck) {
-        let card = i_Deck.getTopCardFromDeck();
-        this.addCard(card);
+        //let card = i_Deck.getTopCardFromDeck(); //todo: change back to this
+
+        //delete todo:
+        let resCard;
+        i_Deck.getCards().find(card=>{
+            if(card.getId() === "change_colorful"){
+                resCard = card;
+            }
+        });
+
+        this.addCard(resCard);
+        /////delete before
+
+        
+        //this.addCard(card);
     }
 
     addCard(i_Card) {

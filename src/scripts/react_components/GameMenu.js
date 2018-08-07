@@ -8,11 +8,13 @@ import { Login } from "./Login.js";
 import { WaitingRoom } from "./WaitingRoom.js";
 import { ActiveUsers } from "./ActiveUsers.js";
 import { updateByRef } from "../controller.js";
+import { throws } from "assert";
 //import { clearInterval } from "timers";
 
 var gameInterval;
 var allGameIntreval;
 var allUserInterval;
+//var exitPlayerCounter = 0;
 
 class GameMenu extends React.Component {
     constructor(args) {
@@ -47,6 +49,8 @@ class GameMenu extends React.Component {
         this.renderWatingRoom = this.renderWatingRoom.bind(this);
         this.fetchKillGame = this.fetchKillGame.bind(this);
         this.deleteGameHandleEndGame = this.deleteGameHandleEndGame.bind(this);
+        this.createGameUi = this.createGameUi.bind(this);
+        this.fetchExitCounterDecrease = this.fetchExitCounterDecrease.bind(this);
         //this.pullGames();
         //this.pullUsers(); // doesnt work here, only in succes login handler
         //this.getUserName();
@@ -80,15 +84,11 @@ class GameMenu extends React.Component {
                 playerId={this.state.currentUser.name}
                 namesList={this.sortPlayersName()}
                 lobbyReturn={() => {
-                    this.fetchKillGame().then(() => {
-                        this.quitGameHandle().then(()=>{
-                            this.pullGames();
-                            this.pullUsers();
-                            this.getUserName();
-                            //this.pullGameStatus();
-                            this.setState({ showGame: false, showLogin: false});
-                        })
-                        })
+                    //this.KillUIGame(); --> exitPlayerCounter-- ==> when counter === 0 then kill UI Game
+
+                    this.fetchKillGame().then(() => { // trying to kill the engine-> only the last go out will succed
+                        this.killGameHandle();
+                    })
                 }} />
         }
     }
@@ -146,7 +146,7 @@ class GameMenu extends React.Component {
     }
 
     fetchKillGame() {
-        return fetch(`/engine/games/${this.state.gameId}`, { method: 'DELETE', credentials: 'include' })
+        return fetch(`/engine/games/${this.state.currentGame.name}`, { method: 'DELETE', credentials: 'include' })
             .then(response => {
                 if (!response.ok) {
                     throw response;
@@ -214,6 +214,66 @@ class GameMenu extends React.Component {
             });
     }
 
+    createGameUi() {
+        const game = {
+            numberOfPlayers: this.state.currentGame.numberOfPlayers,
+            name: this.state.currentGame.name,
+            user: this.state.currentGame.user
+        };
+
+        return fetch('/games', {
+            method: 'POST',
+            body: JSON.stringify(game),
+            credentials: 'include',
+            headers: { "Content-Type": "application/json" },
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw response;
+                }
+                return response;
+            });
+    }
+    ///gameApi.get('/:gameName/counter', (req, res) => {
+
+
+    fetchExitCounterDecrease() {
+        return fetch(`/games/${this.state.currentGame.name}/counter`, { method: 'GET', credentials: 'include' })
+            .then(response => {
+                if (!response.ok) {
+                    throw response;
+                }
+                return response.json();;
+            });
+    }
+
+    killGameHandle() {
+
+
+        //go to server and update counter
+        this.fetchExitCounterDecrease().then((count) => {
+            alert(count);
+            
+            if (count === 0) {//only when all players out
+                //quitGameHandle();
+                alert('delete game from server...');
+                this.deleteGameHandleEndGame();//.then(() => {//forceDelete gameUi
+                //     this.createGameUi()//.then(()=>{//create the same game -> but empty
+                // })
+            }
+          
+
+        });     //kill game ui
+
+        this.pullGames();
+        this.pullUsers();
+        this.getUserName();
+        this.pullGameStatus();
+        this.setState({ showGame: false, showLogin: false, showThirdScreen: false, currentGame: null });
+
+
+    }
+
     quitGameHandle() {
         return fetch(`/games/${this.state.currentGame.name}/logout`, { method: 'POST', body: JSON.stringify(this.state.currentUser), credentials: 'include' })
             .then(response => {
@@ -223,7 +283,7 @@ class GameMenu extends React.Component {
                 //this.setState(()=>({currentUser: {name:''}, showLogin: true}));
                 return response;
             }).then(() => {
-                this.setState({ showThirdScreen: false });
+                this.setState({ showThirdScreen: false, currentGame: null });
             })
     }
 
@@ -301,17 +361,20 @@ class GameMenu extends React.Component {
 
     updateCurrentGame() {
         this.state.games.forEach(game => {
-            if (game.name == this.state.currentGame.name) {
-                if (this.state.currentGame.players.length === this.state.currentGame.numberOfPlayers) {
-                    clearInterval(allUserInterval);
-                    clearInterval(gameInterval);
-                    clearInterval(allGameIntreval);
-                    this.setState({ showGame: true });
-                } else {
-                    this.setState({ currentGame: game });
+            if (this.state.currentGame) {
+                if (game.name == this.state.currentGame.name) {
+                    if (this.state.currentGame.players.length === this.state.currentGame.numberOfPlayers) {
+                        clearInterval(allUserInterval);
+                        clearInterval(gameInterval);
+                        clearInterval(allGameIntreval);
+                        //exitPlayerCounter = this.state.currentGame.numberOfPlayers;
+                        this.setState({ showGame: true });
+                    } else {
+                        this.setState({ currentGame: game });
+                    }
                 }
-
             }
+
         });
     }
 

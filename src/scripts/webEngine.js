@@ -62,11 +62,11 @@ class WebEngine {
     }
 
     // if player exit the game the counter will -- and when counter is 0 we can delete the game
-    SetPlayerExit(){
+    SetPlayerExit() {
         this.exitCounter--;
     }
 
-    IsGameReadyForDelete(){
+    IsGameReadyForDelete() {
         return this.exitCounter === 0;
     }
 
@@ -88,9 +88,9 @@ class WebEngine {
                     resultStat = eStat['winner'];
                 }
             }
-        }else{ //the game ended
+        } else { //the game ended
             resultStat = this.stat;
-        } 
+        }
 
         return resultStat;
     }
@@ -363,9 +363,11 @@ class WebEngine {
 
         for (let i = 0; i < playersList.length; i++) {
 
-            if (playersList[i].getCards().length === 0) {
-                winnerIndex = i;
-                break;
+            if (!playersList[i].isAWinner()) { //if your not a winner and still playing
+                if (playersList[i].getCards().length === 0) { //check if you have 0 cards
+                    winnerIndex = i; //return your index cuz you are a winner!
+                    break;
+                }
             }
         }
 
@@ -475,7 +477,12 @@ class WebEngine {
                 //updateByRef(showError, showColorPicker, endGame);
                 break;
             case eGameState["plus"]:
-                this.Players.getCurrentPlayer().setPlayingToFalse();
+                if (this.Players.getCurrentPlayer().getCards().length === 0) { //todo: if the currentPlayer was no more cards and he is a winner
+                    this.Players.nextPlayerTurn();
+                }
+                else {
+                    this.Players.getCurrentPlayer().setPlayingToFalse();
+                }
                 //todo: flag "normal"
                 this.stat = eStat["normal"];
                 //updateByRef(showError, showColorPicker, endGame);

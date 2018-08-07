@@ -12,6 +12,7 @@ const Stats = (props) => {
         <div id="stats">
             <div id={props.id}>
                 <img className={attribute}/>
+                <div id="winNumber">win number: {props.winNumber}</div>
                 <div id="name">name: {props.stat.name}</div>
                 <div id="numTurns">Number of turns: {props.stat.numOfTurs}</div>
                 <div id="avg_time">Time per turn: {props.stat.avgTime}</div>

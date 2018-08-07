@@ -45,8 +45,11 @@ function updateByRef(newShowError, newShowColorPicker, newEndGame, newIsWinner) 
         fetchPlayerStatsFromServer();
         fetchOpponentFromServer();
         fetchTimerFromServer();
-        fetchAllPlayerStats();
+        //fetchAllPlayerStats();
 
+        if (newEndGame) {
+            fetchAllPlayerStats();
+        }
 
         listener.setState({
             showError: newShowError,
@@ -55,9 +58,10 @@ function updateByRef(newShowError, newShowColorPicker, newEndGame, newIsWinner) 
             isWinner: newIsWinner,
         })
     
-        //if (newEndGame) {
-            //fetchAllPlayerStats();
-        //}
+        // if (newEndGame) {
+        //     fetchAllPlayerStats();
+            
+        // }
 }
 
 /*
@@ -108,11 +112,10 @@ function fetchAllPlayerStats(){
             }
             return response.json();
         }).then((listStat) => {
-            if (listStat[0] !== null) listener.setState({ playerOneStats: listStat[0] });
-            if (listStat[1] !== null) listener.setState({ playerTwoStats: listStat[1] });
-            if (listStat[2] !== null) listener.setState({ playerThreeStats: listStat[2] });
-            if (listStat[3] !== null) listener.setState({ playerFourStats: listStat[3] });
-
+            if (listStat[0] !== null) listener.setState({ playerOneStats: listStat[0],isWinner:true});
+            if (listStat[1] !== null) listener.setState({ playerTwoStats: listStat[1]});
+            if (listStat[2] !== null) listener.setState({ playerThreeStats: listStat[2]});
+            if (listStat[3] !== null) listener.setState({ playerFourStats: listStat[3]});
         });
 }
 
