@@ -1,42 +1,11 @@
-//import { stat } from "fs";
-
-// import {GameEngine} from "./gameEngine.js";
-
-const NUM_OF_HUMAN = 1;
-const NUM_OF_BOT = 1;
 
 var playerName;
 var gameName;
-
-var newDeck = [];
-var newPile = [];
-var newBotCards = [];
-var newPlayerCards = [];
-var newStats = {};
-var newBotStats = {};
-var newWinLose = {};
-var newState = {};
-var newIndex;
-var currentPlayerIndex;
 var listener;
 var engine;
 
 
 function updateByRef(newShowError, newShowColorPicker, newEndGame, newIsWinner) {
-
-    // newState = {
-    //     playerIndex: currentPlayerIndex,
-    //     deck: newDeck,
-    //     pile: newPile,
-    //     playerTwoStats: newBotStats,
-    //     botCards: newBotCards,
-    //     playerCards: newPlayerCards,
-    //     showError: newShowError,
-    //     showColorPicker: newShowColorPicker,
-    //     endGame: newEndGame,
-    //     stats: newStats,
-    //     winLose: newWinLose,
-    // }
 
         fetchCurrentPlayerIndex();
         fetchDeckFromServer();
@@ -45,7 +14,6 @@ function updateByRef(newShowError, newShowColorPicker, newEndGame, newIsWinner) 
         fetchPlayerStatsFromServer();
         fetchOpponentFromServer();
         fetchTimerFromServer();
-        //fetchAllPlayerStats();
 
         if (newEndGame) {
             fetchAllPlayerStats();
@@ -57,53 +25,8 @@ function updateByRef(newShowError, newShowColorPicker, newEndGame, newIsWinner) 
             endGame: newEndGame,
             isWinner: newIsWinner,
         })
-    
-        // if (newEndGame) {
-        //     fetchAllPlayerStats();
-            
-        // }
 }
 
-/*
-
-    currentPlayerIndex = engine.Players.getCurrentPlayerIndex();
-
-    newStats = {
-        numOfTurs: engine.Players.getPlayersList()[currentPlayerIndex].Stats.getNumOfTurns(),
-        avgTime: engine.Players.getPlayersList()[currentPlayerIndex].Stats.getAvgPlayTime(),
-        lastCardCount: engine.Players.getPlayersList()[currentPlayerIndex].Stats.getNumOfOneCard(),
-    }
-    newBotStats = {
-        numOfTurs: engine.Players.getPlayersList()[1].Stats.getNumOfTurns(),
-        avgTime: engine.Players.getPlayersList()[1].Stats.getAvgPlayTime(),
-        lastCardCount: engine.Players.getPlayersList()[1].Stats.getNumOfOneCard(),
-    }
-
-    if (newEndGame) { // if we got this flag that found the winner
-        newWinLose = {
-            timer: GameEngine.getTimer(), //s_gameTimer return by static function in GameEngine called getTimer()
-            winnerIndex: engine.checkForWinner(),
-            botStats: newBotStats,
-        }
-    }
-
-    newState = {
-        playerIndex: currentPlayerIndex,
-        stateIndex: newIndex,
-        deck: newDeck,
-        pile: newPile,
-        playerTwoStats: newBotStats,
-        botCards: newBotCards,
-        playerCards: newPlayerCards,
-        showError: newShowError,
-        showColorPicker: newShowColorPicker,
-        endGame: newEndGame,
-        stats: newStats,
-        winLose: newWinLose,
-    }
-
-    listener.setState(newState);
-*/
 function fetchAllPlayerStats(){
     return fetch(`/engine/render/stats/${gameName}`, { method: 'GET', credentials: 'include' })
         .then(response => {
@@ -112,7 +35,7 @@ function fetchAllPlayerStats(){
             }
             return response.json();
         }).then((listStat) => {
-            if (listStat[0] !== null) listener.setState({ playerOneStats: listStat[0],isWinner:true});
+            if (listStat[0] !== null) listener.setState({ playerOneStats: listStat[0]});
             if (listStat[1] !== null) listener.setState({ playerTwoStats: listStat[1]});
             if (listStat[2] !== null) listener.setState({ playerThreeStats: listStat[2]});
             if (listStat[3] !== null) listener.setState({ playerFourStats: listStat[3]});
@@ -170,7 +93,6 @@ function fetchPileFromServer() {
 }
 
 function fetchPlayerFromServer() {
-    //'/render/player/:gameId/:playerId'
     return fetch(`/engine/render/player/${gameName}/${playerName}`, { method: 'GET', credentials: 'include' })
         .then(response => {
             if (!response.ok) {
@@ -213,19 +135,6 @@ function fetchTimerFromServer() {
 
 
 function initGameEngine(gameId, playerId) {
-    //router.get('/render/deck/:gameId/:playerId', (req, res) => {
-
-    // return fetch(`/engine/GetGame/${gameId}`, { method: 'GET', credentials: 'include' })
-    //     .then(response => {
-    //         if (!response.ok) {
-    //             throw response;
-    //         }
-    //         return response;
-    //     }).then((newEngine) => {
-    //         engine = newEngine;
-    //         engine.initEngine(null, NUM_OF_HUMAN, NUM_OF_BOT);
-    //     });
-
     gameName = gameId;
     playerName = playerId;
     updateByRef(false, false, false);
@@ -235,6 +144,5 @@ function init(gameRef) {
     listener = gameRef;
 
 }
-
 
 export { init, initGameEngine, updateByRef, engine };

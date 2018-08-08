@@ -2,19 +2,16 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import takiLogo from "../../styles/assets/TAKI_logo.png";
-import startGameBtn from "../../styles/assets/startGame.png";
 import { Game } from "./Game.js";
 import { Login } from "./Login.js";
 import { WaitingRoom } from "./WaitingRoom.js";
 import { ActiveUsers } from "./ActiveUsers.js";
 import { updateByRef } from "../controller.js";
 import { throws } from "assert";
-//import { clearInterval } from "timers";
 
 var gameInterval;
 var allGameIntreval;
 var allUserInterval;
-//var exitPlayerCounter = 0;
 
 class GameMenu extends React.Component {
     constructor(args) {
@@ -46,14 +43,10 @@ class GameMenu extends React.Component {
         this.pullGameStatus = this.pullGameStatus.bind(this);
         this.renderThirdScreen = this.renderThirdScreen.bind(this);
         this.sortPlayersName = this.sortPlayersName.bind(this);
-        this.renderWatingRoom = this.renderWatingRoom.bind(this);
         this.fetchKillGame = this.fetchKillGame.bind(this);
-        this.deleteGameHandleEndGame = this.deleteGameHandleEndGame.bind(this);
-        this.createGameUi = this.createGameUi.bind(this);
         this.fetchExitCounterDecrease = this.fetchExitCounterDecrease.bind(this);
-        //this.pullGames();
-        //this.pullUsers(); // doesnt work here, only in succes login handler
-        //this.getUserName();
+        this.kickOutAllPlayers = this.kickOutAllPlayers.bind(this);
+
     }
 
     render() {
@@ -84,34 +77,10 @@ class GameMenu extends React.Component {
                 playerId={this.state.currentUser.name}
                 namesList={this.sortPlayersName()}
                 lobbyReturn={() => {
-                    //this.KillUIGame(); --> exitPlayerCounter-- ==> when counter === 0 then kill UI Game
-
-                    this.fetchKillGame().then(() => { // trying to kill the engine-> only the last go out will succed
-                        this.killGameHandle();
-                    })
+                    this.fetchKillGame();
+                    this.killGameHandle();
                 }} />
         }
-    }
-
-    deleteGameHandleEndGame() {
-        return fetch(`/games/${this.state.currentGame.name}/forceDelete`, { method: 'POST', body: this.state.currentUser.name, credentials: 'include' })
-            .then(response => {
-                if (!response.ok) {
-                    throw response;
-                }
-                return response;
-            })
-    }
-    renderWatingRoom() {
-        this.pullGames();
-        this.pullUsers();
-        this.getUserName();
-        return <WaitingRoom currentUser={this.state.currentUser}
-            users={this.state.users['users']}
-            games={this.state.games} pullGames={this.pullGames}
-            logoutHandler={this.logoutHandler}
-            succesJoinHandler={this.succesJoinHandler} />
-        //this.setState({ showGame: false, showLogin: false });
     }
 
     sortPlayersName() {
@@ -214,29 +183,6 @@ class GameMenu extends React.Component {
             });
     }
 
-    createGameUi() {
-        const game = {
-            numberOfPlayers: this.state.currentGame.numberOfPlayers,
-            name: this.state.currentGame.name,
-            user: this.state.currentGame.user
-        };
-
-        return fetch('/games', {
-            method: 'POST',
-            body: JSON.stringify(game),
-            credentials: 'include',
-            headers: { "Content-Type": "application/json" },
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw response;
-                }
-                return response;
-            });
-    }
-    ///gameApi.get('/:gameName/counter', (req, res) => {
-
-
     fetchExitCounterDecrease() {
         return fetch(`/games/${this.state.currentGame.name}/counter`, { method: 'GET', credentials: 'include' })
             .then(response => {
@@ -247,31 +193,28 @@ class GameMenu extends React.Component {
             });
     }
 
+    kickOutAllPlayers() {
+         fetch(`/games/${this.state.currentGame.name}/logoutAll`, { method: 'POST', credentials: 'include' })
+            .then(response => {
+                if (!response.ok) {
+                    throw response;
+                }
+                return response.json();
+            });
+    }
+
     killGameHandle() {
-
-
         //go to server and update counter
         this.fetchExitCounterDecrease().then((count) => {
-            alert(count);
-            
             if (count === 0) {//only when all players out
-                //quitGameHandle();
-                alert('delete game from server...');
-                this.deleteGameHandleEndGame();//.then(() => {//forceDelete gameUi
-                //     this.createGameUi()//.then(()=>{//create the same game -> but empty
-                // })
+                this.kickOutAllPlayers();//give him name of game and he make all out
             }
-          
-
-        });     //kill game ui
-
+            this.setState({ showGame: false, showLogin: false, showThirdScreen: false, currentGame: null });
+        });
         this.pullGames();
         this.pullUsers();
         this.getUserName();
         this.pullGameStatus();
-        this.setState({ showGame: false, showLogin: false, showThirdScreen: false, currentGame: null });
-
-
     }
 
     quitGameHandle() {
@@ -280,7 +223,6 @@ class GameMenu extends React.Component {
                 if (!response.ok) {
                     console.log(`failed to logout user ${this.state.currentUser.name} `);
                 }
-                //this.setState(()=>({currentUser: {name:''}, showLogin: true}));
                 return response;
             }).then(() => {
                 this.setState({ showThirdScreen: false, currentGame: null });
@@ -301,17 +243,6 @@ class GameMenu extends React.Component {
         gameInterval = setInterval(this.updateCurrentGame, 500);
     }
 
-
-    // pullUsers() {
-    //     this.getUsers().then(users => {
-    //         this.setState({ users }, () => {
-    //             allUserTimeOut = setTimeout(this.pullUsers, 500);
-    //         });
-    //     });
-    // }
-
-
-
     pullUsers() {
         allUserInterval = setInterval(() => {
             this.getUsers().then(users => {
@@ -329,7 +260,6 @@ class GameMenu extends React.Component {
                 return response.json();
             });
     }
-
 
     pullGames() {
         allGameIntreval = setInterval(() => {
@@ -367,7 +297,6 @@ class GameMenu extends React.Component {
                         clearInterval(allUserInterval);
                         clearInterval(gameInterval);
                         clearInterval(allGameIntreval);
-                        //exitPlayerCounter = this.state.currentGame.numberOfPlayers;
                         this.setState({ showGame: true });
                     } else {
                         this.setState({ currentGame: game });
@@ -377,27 +306,6 @@ class GameMenu extends React.Component {
 
         });
     }
-
-    /*
-    updateCurrentGame() {
-        this.state.games.forEach(game => {
-            if (game.name == this.state.currentGame.name) {
-                const isGameExist = this.fetchIsGameExist();
-                alert(isGameExist);
-                if (isGameExist) { //if game started switch to the Game Component
-                    alert("We Started the game");
-                    ReactDOM.render(<Game 
-                        numberOfPlayers={this.state.currentGame.numberOfPlayers}
-                        gameId={this.state.currentGame.name}
-                        playerId={this.state.currentUser.name} />, document.getElementById("root"));
-                }
-                else {
-                    this.setState({ currentGame: game }); 
-                }
-            }
-        });
-    }
-*/
 
     logoutHandler() {
         fetch('/users/logout', { method: 'GET', credentials: 'include' })
@@ -410,10 +318,5 @@ class GameMenu extends React.Component {
     }
 }
 
-function initGame() {
-    ReactDOM.render(<Game />, document.getElementById("root"));
-};
-
-//<img id="startGame" src={startGameBtn} onClick={initGame}/>
 
 export { GameMenu };

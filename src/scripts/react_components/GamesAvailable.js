@@ -6,7 +6,6 @@ import ReactDOM from "react-dom";
     constructor(args) {
         super(args);
         this.joinGameHandle = this.joinGameHandle.bind();
-        //this.quitGameHandle = this.quitGameHandle.bind();
         this.deleteGameHandle = this.deleteGameHandle.bind();
     }
     
@@ -16,8 +15,6 @@ import ReactDOM from "react-dom";
           if (!response.ok) {
               alert(`failed to join  ${user.name} `, response);                
           }else{
-            // alert(response.json().numberOfPlayers);
-            // succesJoinHandler.call(this,response.json());
             return response.json();
           }
       }).then(game=>succesJoinHandler.call(this,game));
@@ -37,7 +34,7 @@ import ReactDOM from "react-dom";
     render() {
       const games=this.props.games; 
         return (
-          <fieldset>
+          <fieldset id="games">
             <legend>Games Available:</legend>
             <ul>
               {games ? games.map(game => (
@@ -56,8 +53,5 @@ import ReactDOM from "react-dom";
         );
       }
 }
-
-// <button className="buttons" onClick={()=>this.quitGameHandle(game.name,this.props.user)}>quit game</button>
-
 
 export{GamesAvailable};

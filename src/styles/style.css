@@ -4,11 +4,18 @@ html{
   height: 100%;
 }
 
+#curPlayer{
+  font-weight: bold;
+}
 .container{
-  border: #073763;
-  border-style:groove;
+  border-style:double;
+ }
+
+ fieldset{
+  border-style:double;
  }
  
+
  #createGame{
    margin-right: 0%;
    margin-top: 1%;
@@ -33,6 +40,9 @@ form{
   margin-left: 40%;
 }
 
+#returnLobby{
+  margin-left: 7%;
+}
 
 .buttons{
   background:    #3d85c6;
@@ -50,11 +60,8 @@ form{
 
 body
 {
-  /*background: linear-gradient(to bottom right,rgb(29, 202, 194),rgb(10, 171, 192) , rgb(0, 132, 255));
-  background: linear-gradient(to bottom right,#2C3E50,#FD746C);
-    background-color: aquamarine;/*
-  background: linear-gradient(to bottom right,#c2e59c,#64b3f4);*/
-  background: linear-gradient(to bottom right,rgb(29, 202, 194),rgb(10, 171, 192) , rgb(0, 132, 255));
+
+  background: linear-gradient(to bottom right,rgb(29, 202, 194),rgb(10, 171, 192) , rgb(0, 132, 255), rgba(125, 107, 226, 0.801));
   height: 95%;
 
 }

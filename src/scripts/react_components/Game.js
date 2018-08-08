@@ -5,7 +5,6 @@ import ReactDOM from "react-dom";
 import { init, updateByRef } from "../../scripts/controller.js";
 import { initGameEngine } from "../../scripts/controller.js";
 import { engine } from "../../scripts/controller.js";
-
 import { Player } from "./Player.js";
 import { DeckRC } from "./DeckRC.js";
 import { PileRC } from "./PileRC.js";
@@ -19,14 +18,12 @@ class Game extends React.Component { //contains all - players,deck,pile,stats
         super(args);
 
         this.colorPickerHandler = this.colorPickerHandler.bind(this)
-        //this.handleReturnLobby = this.handleReturnLobby.bind(this);
         this.handleQuitClick = this.handleQuitClick.bind(this);
         this.renderTwoPlayersScreen = this.renderTwoPlayersScreen.bind(this);
         this.renderThreePlayersScreen = this.renderThreePlayersScreen.bind(this);
         this.renderFourPlayersScreen = this.renderFourPlayersScreen.bind(this);
         this.updateBoard = this.updateBoard.bind(this);
         this.getCurrentGameStatFromServer = this.getCurrentGameStatFromServer.bind(this);
-        //this.fetchKillGame = this.fetchKillGame.bind(this);
 
         this.state = {
             numOfPlayers: this.props.numberOfPlayers,
@@ -54,31 +51,6 @@ class Game extends React.Component { //contains all - players,deck,pile,stats
             },
 
             playerOneStats: {//the old player 
-                name: "",
-                numOfTurs: 0,
-                avgTime: 0,
-                lastCardCount: 0,
-            },
-            playerTwoStats: {//the old bot 
-                name: "",
-                numOfTurs: 0,
-                avgTime: 0,
-                lastCardCount: 0,
-            },
-            playerThreeStats: {
-                name: "",
-                numOfTurs: 0,
-                avgTime: 0,
-                lastCardCount: 0,
-            },
-            playerFourStats: {
-                name: "",
-                numOfTurs: 0,
-                avgTime: 0,
-                lastCardCount: 0,
-            },
-
-            winner1: {//the old player 
                 name: "",
                 numOfTurs: 0,
                 avgTime: 0,
@@ -153,25 +125,12 @@ class Game extends React.Component { //contains all - players,deck,pile,stats
             });
     }
 
-    renderStats() {//render the stats of the player that is playing now 
-        if (this.state.stats.name === this.state.playerOneStats.name)
-
-            return <Stats id={"playerStats"} stat={this.state.playerOneStats} />
-        else if (this.state.stats.name === this.state.playerTwoStats.name) {
-            return <Stats id={"botStats"} stat={this.state.playerTwoStats} />;
-        }
-        else if (this.state.stats.name === this.state.playerThreeStats.name) {
-            return <Stats id={"playerThreeStats"} stat={this.state.playerThreeStats} />;
-        } else return <Stats id={"playerFourStats"} stat={this.state.playerFourStats} />;
-    }
-    //Stats id={"playerStats"} stat={this.state.stats} />   ---->working
-
     renderTwoPlayersScreen() {
         if (!this.state.endGame) {
             return (
                 <div id="gameWrapper">
                     <Player id="bot" numOfCards={this.state.numOfPlayerTwoCards} />
-                    <div>current player turn: {this.state.playerTurn}</div>
+                    <div id="curPlayer">current player turn: {this.state.playerTurn}</div>
                     <div>other players:</div>
                     <div>name:{this.props.namesList[1]}</div>
                     <DeckRC cards={this.state.deck}
@@ -189,13 +148,12 @@ class Game extends React.Component { //contains all - players,deck,pile,stats
                         gameName={this.state.gameId}
                         playerName={this.state.playerId} />
                     <Stats id={"playerStats"} stat={this.state.stats} />
-                    {this.state.isWinner ?
+                        {this.state.isWinner ?
                         <button className="buttons" id="returnLobby" onClick={() => this.props.lobbyReturn()}>return to lobby</button> : null}
                 </div>
             );
         }
         else {
-            //this.fetchKillGame();
             return (
                 <div id="winLose">
                     <div id="timer">The game was {this.state.timer} seconds</div>
@@ -209,23 +167,13 @@ class Game extends React.Component { //contains all - players,deck,pile,stats
         }
     }
 
-    // fetchKillGame() {
-    //     return fetch(`/engine/games/${this.state.gameId}`, { method: 'DELETE', credentials: 'include' })
-    //         .then(response => {
-    //             if (!response.ok) {
-    //                 throw response;
-    //             }
-    //             return response;
-    //         });
-    // }
-
     renderThreePlayersScreen() {
         if (!this.state.endGame) {
             return (
                 <div id="gameWrapper">
                     <Player id="playerThree" numOfCards={this.state.numOfPlayerTwoCards} />
                     <Player id="playerFour" numOfCards={this.state.numOfPlayerThreeCards} />
-                    <div>current player turn: {this.state.playerTurn}</div>
+                    <div id="curPlayer">current player turn: {this.state.playerTurn}</div>
                     <div>other players:</div>
                     <div>name:{this.props.namesList[1]}</div>
                     <div>name:{this.props.namesList[2]}</div>
@@ -271,7 +219,7 @@ class Game extends React.Component { //contains all - players,deck,pile,stats
                     <Player id="bot" numOfCards={this.state.numOfPlayerTwoCards} />
                     <Player id="playerThree" numOfCards={this.state.numOfPlayerThreeCards} />
                     <Player id="playerFour" numOfCards={this.state.numOfPlayerFourCards} />
-                    <div>current player turn: {this.state.playerTurn}</div>
+                    <div id="curPlayer">current player turn: {this.state.playerTurn}</div>
                     <div>other players:</div>
                     <div>name:{this.props.namesList[1]}</div>
                     <div>name:{this.props.namesList[2]}</div>

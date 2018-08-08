@@ -10,8 +10,6 @@ class PicColor extends React.Component {
     }
 
     handleColorPickOnClick(gameName,playerName,cardColor,startIntervel) {
-        //this.props.handleColorPicker; //hide the color picker
-        //engine.Card_OnClick(e); // need to fetch from serverPic
         this.fetchPicColorFromServer(gameName,playerName,cardColor,startIntervel).then(()=>{
             updateByRef(false, false, false, false); //noraml
         });
