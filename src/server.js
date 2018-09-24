@@ -26,7 +26,10 @@ app.use('/engine', engineApi);
 
 
 
+const PORT = process.env.PORT ||3000;
+app.listen(PORT, console.log('Example app listening on port 3000!'));
 
-app.listen(3000, console.log('Example app listening on port 3000!'));
-
-
+// "build": "webpack",
+// "build-watch": "webpack --watch",
+// "start": "node --inspect ./src/server.js",
+// "start-watch": "nodemon --inspect ./src/server.js localhost 3000"
