@@ -19,7 +19,7 @@ app.use(session({
     cookie: { maxAge: 269999999999 },
     
 }));
-
+app.enable('trust proxy');
 
 app.use(express.static(path.resolve(__dirname, "..", "public")));
 
