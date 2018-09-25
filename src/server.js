@@ -12,7 +12,12 @@ const app = express();
 
 app.use(bodyParser.text());
 app.use(bodyParser.json());
-app.use(session({ secret: 'keyboard cat', cookie: {maxAge:269999999999}}));
+app.use(session({
+    secret: 'keyboard cat',
+    proxy:  true,
+    cookie: { maxAge: 269999999999 },
+    
+}));
 
 
 app.use(express.static(path.resolve(__dirname, "..", "public")));
@@ -26,7 +31,7 @@ app.use('/engine', engineApi);
 
 
 
-const PORT = process.env.PORT ||3000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, console.log('Example app listening on port 3000!'));
 
 // "build": "webpack",
