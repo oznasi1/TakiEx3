@@ -109,23 +109,39 @@ class GameMenu extends React.Component {
         namesList.unshift(userName);
         return namesList;
     }
-
+    /*
+    <li key={this.state.currentGame.name}>
+    <div>{`Creator: ${this.state.currentGame.user.name}`}</div>
+    <div>{`Required players: ${this.state.currentGame.numberOfPlayers}`}</div>
+    <div>{`Connected players: ${this.state.currentGame.players.length}`}</div>
+    <div>{this.state.currentGame.numberOfPlayers - this.state.currentGame.players.length != 0 ? `Status: not started` : `Status: started`}</div>
+</li>*/
     renderThirdScreen() {
         return (
             <div id="thirdScreen">
-                <img src={takiLogo} className={"taki_logo"} />
-                <div>Welcome to game: {this.state.currentGame.name} </div>
-                <div className="userName">welcome {this.state.currentUser.name}</div>
-                <button id="quitBtn" className="buttons" onClick={this.quitGameHandle}>quit game</button>
+                <Navbar style={{ backgroundColor: 'rgb(92, 136, 245)' }} brand={logo} center>
+                    <NavItem onClick={()=>console.log('hi')} className="userName">{this.state.currentUser.name} welcome to game: {this.state.currentGame.name}</NavItem>
+                    <NavItem onClick={this.quitGameHandle}>quit game</NavItem>
+                </Navbar>
+                <br></br>
                 <div>waiting for other players to connect! please be patient</div>
+                <br></br>
                 <ActiveUsers usersList={this.state.users['users']} />
 
-                <li key={this.state.currentGame.name}>
-                    <div>{`Creator: ${this.state.currentGame.user.name}`}</div>
-                    <div>{`Required players: ${this.state.currentGame.numberOfPlayers}`}</div>
-                    <div>{`Connected players: ${this.state.currentGame.players.length}`}</div>
-                    <div>{this.state.currentGame.numberOfPlayers - this.state.currentGame.players.length != 0 ? `Status: not started` : `Status: started`}</div>
-                </li>
+
+
+                <Col m={1} s={2}>
+                    <Card style={{height:'50%',width:'30%',maxWidth:'100%',backgroundColor:'rgb(92, 136, 245)'}}  textClassName='white-text' title={`Game name: ${this.state.currentGame.name}`} >
+                        Creator: {this.state.currentGame.user.name}
+                        <br></br>
+                        Required players: {this.state.currentGame.numberOfPlayers}
+                        <br></br>
+                        Connected players: {this.state.currentGame.players.length}
+                        <br></br>
+                        {this.state.currentGame.numberOfPlayers - this.state.currentGame.players.length != 0 ? `Status: not started` : `Status: started`}`
+
+                    </Card>
+                </Col>
             </div>
         )
     }

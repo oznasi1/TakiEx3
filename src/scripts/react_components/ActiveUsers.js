@@ -22,6 +22,7 @@ class ActiveUsers extends React.Component {
     return (
       <Row>
         <Col s={10}>
+        <Chip key='onlineUeses'>Online Users: </Chip>
 
           {this.fetchAllUsers(this.props.usersList).map(user => (
                   <Chip key={user}>{user}</Chip>

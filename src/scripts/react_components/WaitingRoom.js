@@ -24,13 +24,13 @@ class WaitingRoom extends React.Component {
         return (
 
             <div id="waitingRoom">
-                <Navbar brand={logo} right>
-                    <NavItem className="userName">welcome {this.props.currentUser.name}</NavItem>
+                <Navbar  style={{backgroundColor:'rgb(92, 136, 245)'}} brand={logo} center>
+                    <NavItem onClick={()=>console.log("hi")} className="userName">welcome {this.props.currentUser.name}</NavItem>
                     <NavItem onClick={this.props.logoutHandler}>logout</NavItem>
                 </Navbar>
                 <br></br>
                 <ActiveUsers usersList={this.props.users} />
-                <br></br><br></br>
+                <br></br>
                 <CreateGame user={this.props.currentUser} />
                 <GamesAvailable games={this.props.games}
                     user={this.props.currentUser}
