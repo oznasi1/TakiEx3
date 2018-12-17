@@ -97,6 +97,9 @@ body
 #winLose{
   height: 95%;
 }
+a>.taki_logo{
+  margin-left:0px; 
+}
 .taki_logo
 {
     display: block;
@@ -104,8 +107,8 @@ body
     margin-right: auto;
     height:auto;
     width:auto;
-    max-width:35%;
-    max-height:35%;
+    max-width:22%;
+    max-height:22%;
     cursor: pointer;
 
 }

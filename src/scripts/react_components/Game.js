@@ -33,7 +33,7 @@ class Game extends React.Component { //contains all - players,deck,pile,stats
             numOfPlayerThreeCards: 8,  //
             numOfPlayerFourCards: 8,   //
             isWinner: false,
-            //--
+            //---- 
             playerTurn: "",
             playerCards: [],//my cards
             deck: [],

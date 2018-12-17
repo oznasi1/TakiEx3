@@ -8,6 +8,10 @@ import { WaitingRoom } from "./WaitingRoom.js";
 import { ActiveUsers } from "./ActiveUsers.js";
 import { updateByRef } from "../controller.js";
 import { throws } from "assert";
+import { Button, Card, Row, Col, Icon, Collection, CollectionItem, NavItem, Navbar } from 'react-materialize';
+import Container from "react-materialize/lib/Container";
+
+var logo = <img src={takiLogo} className={"taki_logo"} />
 
 var gameInterval;
 var allGameIntreval;
@@ -48,8 +52,18 @@ class GameMenu extends React.Component {
         this.kickOutAllPlayers = this.kickOutAllPlayers.bind(this);
 
     }
-
+    //     <div id="menuWrapper">
+    //     <img src={takiLogo} className={"taki_logo"} />
+    //     <Login loginSuccessHandler={this.handleSuccessedLogin} loginErrorHandler={this.handleLoginError} />
+    // </div>
+    // <div className = {Container} >
+    //                         <Navbar brand={logo} right>
+    //                             <NavItem onClick={() => console.log('test click')}>Welcome</NavItem>
+    //                         </Navbar>
+    //                         <Login loginSuccessHandler={this.handleSuccessedLogin} loginErrorHandler={this.handleLoginError} />
+    //                     </div>
     render() {
+
         if (!this.state.showGame) {
             if (!this.state.showThirdScreen) {
                 if (this.state.showLogin) {
@@ -81,6 +95,8 @@ class GameMenu extends React.Component {
                     this.killGameHandle();
                 }} />
         }
+
+
     }
 
     sortPlayersName() {
@@ -194,7 +210,7 @@ class GameMenu extends React.Component {
     }
 
     kickOutAllPlayers() {
-         fetch(`/games/${this.state.currentGame.name}/logoutAll`, { method: 'POST', credentials: 'include' })
+        fetch(`/games/${this.state.currentGame.name}/logoutAll`, { method: 'POST', credentials: 'include' })
             .then(response => {
                 if (!response.ok) {
                     throw response;

@@ -17,14 +17,16 @@ class Login extends React.Component {
 
         var userStyle={
             fontSize: '140%',
+            color:'black'
          };    
 
         return(
             <div>
              <form id="login" onSubmit={this.signUpOnClick}>
-                <label style={userStyle}  htmlFor="userName">Username: <input name="userName" /></label>
+                <label  style={userStyle}  htmlFor="userName">Username: <input name="userName" style={{width:'30%',color:'yellow'}}/></label>
                 <br/><br/>
-                <input className="buttons" id="signUp" type="submit" value="Login"/>
+                <input className="buttons" id="signUp" type="submit" value="Login" style={{alignItems: 'center',
+}}/>
              </form>
             {this.renderErrorMessage()}
             </div>
