@@ -7,7 +7,8 @@
     "build": "webpack",
     "build-watch": "webpack --watch",
     "start": "node --inspect ./src/server.js",
-    "start-watch": "nodemon --inspect ./src/server.js localhost 3000"
+    "start-watch": "nodemon --inspect ./src/server.js localhost 3000",
+    "heroku-postbuild": "echo Skip build on Heroku"
   },
   "author": "Spivak Ofer",
   "license": "ISC",
@@ -30,5 +31,6 @@
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-materialize": "^2.6.0"
-  }
+  },
+  "heroku-run-build-script": true
 }
