@@ -1,8 +1,23 @@
 
 
+
 html{
+
+
   height: 100%;
 }
+
+.nav-wrapper{
+  text-align: center;
+
+}
+
+.nav-wrapper .brand-logo {
+  display: inline-block;
+  pointer-events: none;
+
+}
+
 
 #curPlayer{
   font-weight: bold;
@@ -36,10 +51,8 @@ form{
 }
 
 #login{
-  margin-top: 15%;
-  margin-left: 40%;
+  padding:20%;
 }
-
 #returnLobby{
   margin-left: 7%;
 }
@@ -100,6 +113,8 @@ body
 
 .taki_logo
 {
+  pointer-events: none;
+
     display: block;
     margin-left: auto;
     margin-right: auto;
@@ -108,7 +123,6 @@ body
     max-width:20%;
     max-height:20%;
     min-width:27%;
-    cursor: pointer;
 
 
 }

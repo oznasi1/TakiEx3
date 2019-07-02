@@ -98,7 +98,7 @@ class CreateGame extends React.Component {
                   </lable>
                     </div>
                     {this.renderErrorMessage()}
-                    <div>
+                    <div style={{ padding: '50px' }}>
                         <Button waves='light' style={{backgroundColor:'rgb(92, 136, 245)'}} onClick={()=>this.createGameOnClick}>Create Game</Button>
                     </div>
                 </form>
