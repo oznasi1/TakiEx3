@@ -10,7 +10,7 @@ import { throws } from 'assert';
 import { Button, Card, Row, Col, Icon, Collection, CollectionItem, NavItem, Navbar } from 'react-materialize';
 import Container from 'react-materialize/lib/Container';
 
-var logo = <img style={{maxWidth: '120px'}} src={takiLogo} className={'taki_logo'} />;
+var logo = <img style={{maxWidth: '120px'}} src={takiLogo} href={'#'} className={'taki_logo'} />;
 
 var gameInterval;
 var allGameIntreval;
@@ -124,7 +124,7 @@ class GameMenu extends React.Component {
 	renderThirdScreen() {
 		return (
 			<div id="thirdScreen">
-				<Navbar style={{ backgroundColor: 'rgb(92, 136, 245)' }} brand={logo} center>
+				<Navbar style={{ backgroundColor: 'rgb(92, 136, 245)' }} brand={logo}>
 					<NavItem onClick={() => console.log()} className="userName">
 						{this.state.currentUser.name} welcome to game: {this.state.currentGame.name}
 					</NavItem>
