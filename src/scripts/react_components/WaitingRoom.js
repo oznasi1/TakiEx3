@@ -5,7 +5,7 @@ import takiLogo from '../../styles/assets/TAKI_logo.png';
 import { ActiveUsers } from './ActiveUsers.js';
 import { CreateGame } from './CreateGame.js';
 import { GamesAvailable } from './GamesAvailable.js';
-var logo = <img src={takiLogo} href={'#'} className={'taki_logo'} />;
+var logo = <img style={{maxWidth: '120px'}} src={takiLogo} href={'#'} className={'taki_logo'} />;
 import { Button, Card, Row, Col, Icon, Collection, CollectionItem, NavItem, Navbar } from 'react-materialize';
 import { RSA_PKCS1_PSS_PADDING } from 'constants';
 
@@ -24,7 +24,7 @@ class WaitingRoom extends React.Component {
 					<NavItem onClick={this.props.logoutHandler}>logout</NavItem>
 				</Navbar>
 				<br />
-				<div style={{ padding: '100px' }}>
+				<div style={{ padding: '100px' , fontSize:'large'}}>
 					<ActiveUsers usersList={this.props.users} />
 					<br />
 					<CreateGame user={this.props.currentUser} />
@@ -35,6 +35,7 @@ class WaitingRoom extends React.Component {
 					/>
 				</div>
 				
+
 			</div>
 		);
 	}

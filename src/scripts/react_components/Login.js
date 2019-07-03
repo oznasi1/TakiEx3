@@ -19,7 +19,7 @@ class Login extends React.Component {
 		};
 
 		return (
-			<div style={{textAlign:'center'}}>
+			<div style={{textAlign:'center',fontSize:'large'}}>
 				<form id="login"  onSubmit={this.signUpOnClick}>
 					<label style={userStyle} htmlFor="userName">
 						Username:{' '}
@@ -30,6 +30,7 @@ class Login extends React.Component {
 					</label>
 					<br />
 					<br />
+					
 						<Button
 							waves="light"
 							style={{

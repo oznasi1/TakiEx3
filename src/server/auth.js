@@ -3,7 +3,8 @@
 
 function userAuthentication(req, res, next) {
 	if (userList[req.session.id] === undefined) {	
-		res.sendStatus(401);		
+		res.sendStatus(401);	
+		console.log(userList[req.session.id]);	
 	} else {		
 		next();
 	}

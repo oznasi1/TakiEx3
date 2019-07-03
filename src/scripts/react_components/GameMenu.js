@@ -1,354 +1,377 @@
-
-import React from "react";
-import ReactDOM from "react-dom";
-import takiLogo from "../../styles/assets/TAKI_logo.png";
-import { Game } from "./Game.js";
-import { Login } from "./Login.js";
-import { WaitingRoom } from "./WaitingRoom.js";
-import { ActiveUsers } from "./ActiveUsers.js";
-import { updateByRef } from "../controller.js";
-import { throws } from "assert";
+import React from 'react';
+import ReactDOM from 'react-dom';
+import takiLogo from '../../styles/assets/TAKI_logo.png';
+import { Game } from './Game.js';
+import { Login } from './Login.js';
+import { WaitingRoom } from './WaitingRoom.js';
+import { ActiveUsers } from './ActiveUsers.js';
+import { updateByRef } from '../controller.js';
+import { throws } from 'assert';
 import { Button, Card, Row, Col, Icon, Collection, CollectionItem, NavItem, Navbar } from 'react-materialize';
-import Container from "react-materialize/lib/Container";
+import Container from 'react-materialize/lib/Container';
 
-var logo = <img src={takiLogo} className={"taki_logo"} />
+var logo = <img src={takiLogo} className={'taki_logo'} />;
 
 var gameInterval;
 var allGameIntreval;
 var allUserInterval;
 
 class GameMenu extends React.Component {
-    constructor(args) {
-        super(args);
-        this.state = {
-            showGame: false,
-            showLogin: true,
-            showThirdScreen: false,
-            currentGame: [],
-            currentUser: {
-                name: ""
-            },
-            users: {},
-            games: []
-        };
-        this.updateCurrentGame = this.updateCurrentGame.bind(this);//after joining update screen 3 game
-        this.quitGameHandle = this.quitGameHandle.bind(this);
-        this.succesJoinHandler = this.succesJoinHandler.bind(this);
-        this.handleSuccessedLogin = this.handleSuccessedLogin.bind(this);
-        this.handleLoginError = this.handleLoginError.bind(this);
-        this.fetchUserInfo = this.fetchUserInfo.bind(this);
-        this.logoutHandler = this.logoutHandler.bind(this);
-        this.getUsers = this.getUsers.bind(this);
-        this.pullUsers = this.pullUsers.bind(this);
-        this.getGames = this.getGames.bind(this);
-        this.pullGames = this.pullGames.bind(this);
-        this.fetchIsGameExist = this.fetchIsGameExist.bind(this);
-        this.createNewEngine = this.createNewEngine.bind(this);
-        this.pullGameStatus = this.pullGameStatus.bind(this);
-        this.renderThirdScreen = this.renderThirdScreen.bind(this);
-        this.sortPlayersName = this.sortPlayersName.bind(this);
-        this.fetchKillGame = this.fetchKillGame.bind(this);
-        this.fetchExitCounterDecrease = this.fetchExitCounterDecrease.bind(this);
-        this.kickOutAllPlayers = this.kickOutAllPlayers.bind(this);
+	constructor(args) {
+		super(args);
+		this.state = {
+			showGame: false,
+			showLogin: true,
+			showThirdScreen: false,
+			currentGame: [],
+			currentUser: {
+				name: '',
+			},
+			users: {},
+			games: [],
+		};
+		this.updateCurrentGame = this.updateCurrentGame.bind(this); //after joining update screen 3 game
+		this.quitGameHandle = this.quitGameHandle.bind(this);
+		this.succesJoinHandler = this.succesJoinHandler.bind(this);
+		this.handleSuccessedLogin = this.handleSuccessedLogin.bind(this);
+		this.handleLoginError = this.handleLoginError.bind(this);
+		this.fetchUserInfo = this.fetchUserInfo.bind(this);
+		this.logoutHandler = this.logoutHandler.bind(this);
+		this.getUsers = this.getUsers.bind(this);
+		this.pullUsers = this.pullUsers.bind(this);
+		this.getGames = this.getGames.bind(this);
+		this.pullGames = this.pullGames.bind(this);
+		this.fetchIsGameExist = this.fetchIsGameExist.bind(this);
+		this.createNewEngine = this.createNewEngine.bind(this);
+		this.pullGameStatus = this.pullGameStatus.bind(this);
+		this.renderThirdScreen = this.renderThirdScreen.bind(this);
+		this.sortPlayersName = this.sortPlayersName.bind(this);
+		this.fetchKillGame = this.fetchKillGame.bind(this);
+		this.fetchExitCounterDecrease = this.fetchExitCounterDecrease.bind(this);
+		this.kickOutAllPlayers = this.kickOutAllPlayers.bind(this);
+	}
+	//     <div id="menuWrapper">
+	//     <img src={takiLogo} className={"taki_logo"} />
+	//     <Login loginSuccessHandler={this.handleSuccessedLogin} loginErrorHandler={this.handleLoginError} />
+	// </div>
+	// <div className = {Container} >
+	//                         <Navbar brand={logo} right>
+	//                             <NavItem onClick={() => console.log('test click')}>Welcome</NavItem>
+	//                         </Navbar>
+	//                         <Login loginSuccessHandler={this.handleSuccessedLogin} loginErrorHandler={this.handleLoginError} />
+	//                     </div>
+	render() {
+		if (!this.state.showGame) {
+			if (!this.state.showThirdScreen) {
+				if (this.state.showLogin) {
+					return (
+						<div id="menuWrapper">
+							<img src={takiLogo} className={'taki_logo'} />
+							<Login
+								loginSuccessHandler={this.handleSuccessedLogin}
+								loginErrorHandler={this.handleLoginError}
+							/>
+						</div>
+					);
+				} else {
+					return (
+						<WaitingRoom
+							currentUser={this.state.currentUser}
+							users={this.state.users['users']}
+							games={this.state.games}
+							pullGames={this.pullGames}
+							logoutHandler={this.logoutHandler}
+							succesJoinHandler={this.succesJoinHandler}
+						/>
+					);
+				}
+			} else {
+				return this.renderThirdScreen();
+			}
+		} else {
+			return (
+				<Game
+					numberOfPlayers={this.state.currentGame.numberOfPlayers}
+					gameId={this.state.currentGame.name}
+					playerId={this.state.currentUser.name}
+					namesList={this.sortPlayersName()}
+					lobbyReturn={() => {
+						this.fetchKillGame();
+						this.killGameHandle();
+					}}
+				/>
+			);
+		}
+	}
 
-    }
-    //     <div id="menuWrapper">
-    //     <img src={takiLogo} className={"taki_logo"} />
-    //     <Login loginSuccessHandler={this.handleSuccessedLogin} loginErrorHandler={this.handleLoginError} />
-    // </div>
-    // <div className = {Container} >
-    //                         <Navbar brand={logo} right>
-    //                             <NavItem onClick={() => console.log('test click')}>Welcome</NavItem>
-    //                         </Navbar>
-    //                         <Login loginSuccessHandler={this.handleSuccessedLogin} loginErrorHandler={this.handleLoginError} />
-    //                     </div>
-    render() {
-
-        if (!this.state.showGame) {
-            if (!this.state.showThirdScreen) {
-                if (this.state.showLogin) {
-                    return (
-                        <div id="menuWrapper">
-                            <img src={takiLogo} className={"taki_logo"} />
-                            <Login loginSuccessHandler={this.handleSuccessedLogin} loginErrorHandler={this.handleLoginError} />
-                        </div>
-                    )
-                }
-                else {
-                    return <WaitingRoom currentUser={this.state.currentUser}
-                        users={this.state.users['users']}
-                        games={this.state.games} pullGames={this.pullGames}
-                        logoutHandler={this.logoutHandler}
-                        succesJoinHandler={this.succesJoinHandler} />
-                }
-            }
-            else {
-                return this.renderThirdScreen();
-            }
-        } else {
-            return <Game numberOfPlayers={this.state.currentGame.numberOfPlayers}
-                gameId={this.state.currentGame.name}
-                playerId={this.state.currentUser.name}
-                namesList={this.sortPlayersName()}
-                lobbyReturn={() => {
-                    this.fetchKillGame();
-                    this.killGameHandle();
-                }} />
-        }
-
-
-    }
-
-    sortPlayersName() {
-        const playesList = this.state.currentGame.players;
-        let namesList = [];
-        playesList.forEach((player) => namesList.push(player.name));
-        const userName = this.state.currentUser.name;
-        const userIndex = namesList.indexOf(userName);
-        namesList.splice(userIndex, 1);
-        namesList.unshift(userName);
-        return namesList;
-    }
-    /*
+	sortPlayersName() {
+		const playesList = this.state.currentGame.players;
+		let namesList = [];
+		playesList.forEach(player => namesList.push(player.name));
+		const userName = this.state.currentUser.name;
+		const userIndex = namesList.indexOf(userName);
+		namesList.splice(userIndex, 1);
+		namesList.unshift(userName);
+		return namesList;
+	}
+	/*
     <li key={this.state.currentGame.name}>
     <div>{`Creator: ${this.state.currentGame.user.name}`}</div>
     <div>{`Required players: ${this.state.currentGame.numberOfPlayers}`}</div>
     <div>{`Connected players: ${this.state.currentGame.players.length}`}</div>
     <div>{this.state.currentGame.numberOfPlayers - this.state.currentGame.players.length != 0 ? `Status: not started` : `Status: started`}</div>
 </li>*/
-    renderThirdScreen() {
-        return (
-            <div id="thirdScreen">
-                <Navbar style={{ backgroundColor: 'rgb(92, 136, 245)' }} brand={logo} center>
-                    <NavItem onClick={()=>console.log('hi')} className="userName">{this.state.currentUser.name} welcome to game: {this.state.currentGame.name}</NavItem>
-                    <NavItem onClick={this.quitGameHandle}>quit game</NavItem>
-                </Navbar>
-                <br></br>
-                <div>waiting for other players to connect! please be patient</div>
-                <br></br>
-                <ActiveUsers usersList={this.state.users['users']} />
+	renderThirdScreen() {
+		return (
+			<div id="thirdScreen">
+				<Navbar style={{ backgroundColor: 'rgb(92, 136, 245)' }} brand={logo} center>
+					<NavItem onClick={() => console.log()} className="userName">
+						{this.state.currentUser.name} welcome to game: {this.state.currentGame.name}
+					</NavItem>
+					<NavItem onClick={this.quitGameHandle}>quit game</NavItem>
+				</Navbar>
+				<div style={{ padding: '100px' }}>
+					<br />
+					<div>waiting for other players to connect! please be patient</div>
+					<br />
+					<ActiveUsers usersList={this.state.users['users']} />
 
+					<Col m={1} s={2}>
+						<Card
+							style={{
+								height: '50%',
+								width: '30%',
+								maxWidth: '100%',
+								backgroundColor: 'rgb(92, 136, 245)',
+							}}
+							textClassName="white-text"
+							title={`Game name: ${this.state.currentGame.name}`}
+						>
+							Creator: {this.state.currentGame.user.name}
+							<br />
+							Required players: {this.state.currentGame.numberOfPlayers}
+							<br />
+							Connected players: {this.state.currentGame.players.length}
+							<br />
+							{this.state.currentGame.numberOfPlayers - this.state.currentGame.players.length != 0
+								? `Status: not started`
+								: `Status: started`}
+							`
+						</Card>
+					</Col>
+				</div>
+			</div>
+		);
+	}
 
+	fetchKillGame() {
+		return fetch(`/engine/games/${this.state.currentGame.name}`, { method: 'DELETE', credentials: 'include' }).then(
+			response => {
+				if (!response.ok) {
+					throw response;
+				}
+				return response;
+			}
+		);
+	}
 
-                <Col m={1} s={2}>
-                    <Card style={{height:'50%',width:'30%',maxWidth:'100%',backgroundColor:'rgb(92, 136, 245)'}}  textClassName='white-text' title={`Game name: ${this.state.currentGame.name}`} >
-                        Creator: {this.state.currentGame.user.name}
-                        <br></br>
-                        Required players: {this.state.currentGame.numberOfPlayers}
-                        <br></br>
-                        Connected players: {this.state.currentGame.players.length}
-                        <br></br>
-                        {this.state.currentGame.numberOfPlayers - this.state.currentGame.players.length != 0 ? `Status: not started` : `Status: started`}`
+	createNewEngine(game) {
+		let url = '';
+		switch (game.numberOfPlayers) {
+			case 2:
+				url = `/engine/games/${game.name}/${game.players[0].name}/${game.players[1].name}`;
+				break;
+			case 3:
+				url = `/engine/games/${game.name}/${game.players[0].name}/${game.players[1].name}/${
+					game.players[2].name
+				}`;
+				break;
+			case 4:
+				url = `/engine/games/${game.name}/${game.players[0].name}/${game.players[1].name}/${
+					game.players[2].name
+				}/${game.players[3].name}`;
+				break;
+		}
+		return fetch(url, { method: 'GET', credentials: 'include' }).then(response => {
+			if (!response.ok) {
+				alert(`failed to create engine ${game.name} `);
+				throw response;
+			}
+			return response;
+		});
+	}
 
-                    </Card>
-                </Col>
-            </div>
-        )
-    }
+	succesJoinHandler(game) {
+		if (game.players.length === game.numberOfPlayers) {
+			this.createNewEngine(game);
+		}
+		this.setState({ showThirdScreen: true, currentGame: game });
+	}
 
-    fetchKillGame() {
-        return fetch(`/engine/games/${this.state.currentGame.name}`, { method: 'DELETE', credentials: 'include' })
-            .then(response => {
-                if (!response.ok) {
-                    throw response;
-                }
-                return response;
-            });
-    }
+	handleSuccessedLogin() {
+		this.setState(() => ({ showLogin: false }), this.getUserName);
+		this.getUserName();
+		this.pullUsers();
+		this.pullGames();
+		this.pullGameStatus();
+	}
 
+	handleLoginError() {
+		this.setState(() => ({ showLogin: true }));
+	}
 
+	getUserName() {
+		this.fetchUserInfo()
+			.then(userInfo => {
+				this.setState(() => ({ currentUser: userInfo, showLogin: false }));
+			})
+			.catch(err => {
+				if (err.status === 401) {
+					// incase we're getting 'unautorithed' as response
+					this.setState(() => ({ showLogin: true }));
+				} else {
+					throw err; // in case we're getting an error
+				}
+			});
+	}
 
-    createNewEngine(game) {
-        let url = "";
-        switch (game.numberOfPlayers) {
-            case 2:
-                url = `/engine/games/${game.name}/${game.players[0].name}/${game.players[1].name}`;
-                break;
-            case 3:
-                url = `/engine/games/${game.name}/${game.players[0].name}/${game.players[1].name}/${game.players[2].name}`;
-                break;
-            case 4:
-                url = `/engine/games/${game.name}/${game.players[0].name}/${game.players[1].name}/${game.players[2].name}/${game.players[3].name}`;
-                break;
-        }
-        return fetch(url, { method: 'GET', credentials: 'include' })
-            .then(response => {
-                if (!response.ok) {
-                    alert(`failed to create engine ${game.name} `);
-                    throw response;
-                }
-                return response;
-            })
-    }
+	fetchExitCounterDecrease() {
+		return fetch(`/games/${this.state.currentGame.name}/counter`, { method: 'GET', credentials: 'include' }).then(
+			response => {
+				if (!response.ok) {
+					throw response;
+				}
+				return response.json();
+			}
+		);
+	}
 
-    succesJoinHandler(game) {
-        if (game.players.length === game.numberOfPlayers) {
-            this.createNewEngine(game);
-        }
-        this.setState({ showThirdScreen: true, currentGame: game });
-    }
+	kickOutAllPlayers() {
+		fetch(`/games/${this.state.currentGame.name}/logoutAll`, { method: 'POST', credentials: 'include' }).then(
+			response => {
+				if (!response.ok) {
+					throw response;
+				}
+				return response.json();
+			}
+		);
+	}
 
-    handleSuccessedLogin() {
-        this.setState(() => ({ showLogin: false }), this.getUserName);
-        this.getUserName();
-        this.pullUsers();
-        this.pullGames();
-        this.pullGameStatus();
-    }
+	killGameHandle() {
+		//go to server and update counter
+		this.fetchExitCounterDecrease().then(count => {
+			if (count === 0) {
+				//only when all players out
+				this.kickOutAllPlayers(); //give him name of game and he make all out
+			}
+			this.setState({ showGame: false, showLogin: false, showThirdScreen: false, currentGame: null });
+		});
+		this.pullGames();
+		this.pullUsers();
+		this.getUserName();
+		this.pullGameStatus();
+	}
 
+	quitGameHandle() {
+		return fetch(`/games/${this.state.currentGame.name}/logout`, {
+			method: 'POST',
+			body: JSON.stringify(this.state.currentUser),
+			credentials: 'include',
+		})
+			.then(response => {
+				if (!response.ok) {
+					console.log(`failed to logout user ${this.state.currentUser.name} `);
+				}
+				return response;
+			})
+			.then(() => {
+				this.setState({ showThirdScreen: false, currentGame: null });
+			});
+	}
 
-    handleLoginError() {
-        this.setState(() => ({ showLogin: true }));
-    }
+	fetchUserInfo() {
+		return fetch('/users', { method: 'GET', credentials: 'include' }).then(response => {
+			if (!response.ok) {
+				throw response;
+			}
+			return response.json();
+		});
+	}
 
-    getUserName() {
-        this.fetchUserInfo()
-            .then(userInfo => {
-                this.setState(() => ({ currentUser: userInfo, showLogin: false }));
-            })
-            .catch(err => {
-                if (err.status === 401) { // incase we're getting 'unautorithed' as response
-                    this.setState(() => ({ showLogin: true }));
-                } else {
-                    throw err; // in case we're getting an error
-                }
-            });
-    }
+	pullGameStatus() {
+		gameInterval = setInterval(this.updateCurrentGame, 500);
+	}
 
-    fetchExitCounterDecrease() {
-        return fetch(`/games/${this.state.currentGame.name}/counter`, { method: 'GET', credentials: 'include' })
-            .then(response => {
-                if (!response.ok) {
-                    throw response;
-                }
-                return response.json();;
-            });
-    }
+	pullUsers() {
+		allUserInterval = setInterval(() => {
+			this.getUsers().then(users => {
+				this.setState({ users });
+			});
+		}, 1000);
+	}
 
-    kickOutAllPlayers() {
-        fetch(`/games/${this.state.currentGame.name}/logoutAll`, { method: 'POST', credentials: 'include' })
-            .then(response => {
-                if (!response.ok) {
-                    throw response;
-                }
-                return response.json();
-            });
-    }
+	getUsers() {
+		return fetch('/users/allUsers', { method: 'GET', credentials: 'include' }).then(response => {
+			if (!response.ok) {
+				throw response;
+			}
+			return response.json();
+		});
+	}
 
-    killGameHandle() {
-        //go to server and update counter
-        this.fetchExitCounterDecrease().then((count) => {
-            if (count === 0) {//only when all players out
-                this.kickOutAllPlayers();//give him name of game and he make all out
-            }
-            this.setState({ showGame: false, showLogin: false, showThirdScreen: false, currentGame: null });
-        });
-        this.pullGames();
-        this.pullUsers();
-        this.getUserName();
-        this.pullGameStatus();
-    }
+	pullGames() {
+		allGameIntreval = setInterval(() => {
+			this.getGames().then(games => {
+				this.setState({ games });
+			});
+		}, 1000);
+	}
 
-    quitGameHandle() {
-        return fetch(`/games/${this.state.currentGame.name}/logout`, { method: 'POST', body: JSON.stringify(this.state.currentUser), credentials: 'include' })
-            .then(response => {
-                if (!response.ok) {
-                    console.log(`failed to logout user ${this.state.currentUser.name} `);
-                }
-                return response;
-            }).then(() => {
-                this.setState({ showThirdScreen: false, currentGame: null });
-            })
-    }
+	getGames() {
+		return fetch('/games', { method: 'GET', credentials: 'include' }).then(response => {
+			if (!response.ok) {
+				throw response;
+			}
+			return response.json();
+		});
+	}
 
-    fetchUserInfo() {
-        return fetch('/users', { method: 'GET', credentials: 'include' })
-            .then(response => {
-                if (!response.ok) {
-                    throw response;
-                }
-                return response.json();
-            });
-    }
+	fetchIsGameExist() {
+		fetch(`/engine/games/${this.state.currentGame.name}`, { method: 'GET', credentials: 'include' }).then(
+			response => {
+				if (!response.ok) {
+					return false;
+				}
+				return true;
+			}
+		);
+	}
 
-    pullGameStatus() {
-        gameInterval = setInterval(this.updateCurrentGame, 500);
-    }
+	updateCurrentGame() {
+		this.state.games.forEach(game => {
+			if (this.state.currentGame) {
+				if (game.name == this.state.currentGame.name) {
+					if (this.state.currentGame.players.length === this.state.currentGame.numberOfPlayers) {
+						clearInterval(allUserInterval);
+						clearInterval(gameInterval);
+						clearInterval(allGameIntreval);
+						this.setState({ showGame: true });
+					} else {
+						this.setState({ currentGame: game });
+					}
+				}
+			}
+		});
+	}
 
-    pullUsers() {
-        allUserInterval = setInterval(() => {
-            this.getUsers().then(users => {
-                this.setState({ users });
-            });
-        }, 500);
-    }
-
-    getUsers() {
-        return fetch('/users/allUsers', { method: 'GET', credentials: 'include' })
-            .then(response => {
-                if (!response.ok) {
-                    throw response;
-                }
-                return response.json();
-            });
-    }
-
-    pullGames() {
-        allGameIntreval = setInterval(() => {
-            this.getGames().then(games => {
-                this.setState({ games });
-            });
-        }, 500);
-    }
-
-    getGames() {
-        return fetch('/games', { method: 'GET', credentials: 'include' })
-            .then(response => {
-                if (!response.ok) {
-                    throw response;
-                }
-                return response.json();
-            });
-    }
-
-    fetchIsGameExist() {
-        fetch(`/engine/games/${this.state.currentGame.name}`, { method: 'GET', credentials: 'include' })
-            .then(response => {
-                if (!response.ok) {
-                    return false;
-                }
-                return true;
-            });
-    }
-
-    updateCurrentGame() {
-        this.state.games.forEach(game => {
-            if (this.state.currentGame) {
-                if (game.name == this.state.currentGame.name) {
-                    if (this.state.currentGame.players.length === this.state.currentGame.numberOfPlayers) {
-                        clearInterval(allUserInterval);
-                        clearInterval(gameInterval);
-                        clearInterval(allGameIntreval);
-                        this.setState({ showGame: true });
-                    } else {
-                        this.setState({ currentGame: game });
-                    }
-                }
-            }
-
-        });
-    }
-
-    logoutHandler() {
-        fetch('/users/logout', { method: 'GET', credentials: 'include' })
-            .then(response => {
-                if (!response.ok) {
-                    console.log(`failed to logout user ${this.state.currentUser.name} `, response);
-                }
-                this.setState(() => ({ currentUser: { name: '' }, showLogin: true }));
-            })
-    }
+	logoutHandler() {
+		fetch('/users/logout', { method: 'GET', credentials: 'include' }).then(response => {
+			if (!response.ok) {
+				console.log(`failed to logout user ${this.state.currentUser.name} `, response);
+			}
+			this.setState(() => ({ currentUser: { name: '' }, showLogin: true }));
+		});
+	}
 }
-
 
 export { GameMenu };

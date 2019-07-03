@@ -415,7 +415,7 @@ body
   
   #player {
     position: absolute;
-    bottom: 23%; 
+    bottom: 10%; 
     left:5%;
     right:5%; 
     display: inline-block;
