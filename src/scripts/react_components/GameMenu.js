@@ -10,7 +10,7 @@ import { throws } from 'assert';
 import { Button, Card, Row, Col, Icon, Collection, CollectionItem, NavItem, Navbar } from 'react-materialize';
 import Container from 'react-materialize/lib/Container';
 
-var logo = <img style={{maxWidth: '120px'}} src={takiLogo} href={'#'} className={'taki_logo'} />;
+var logo = <img style={{ maxWidth: '120px' }} src={takiLogo} href={'#'} className={'taki_logo'} />;
 
 var gameInterval;
 var allGameIntreval;
@@ -19,6 +19,14 @@ var allUserInterval;
 class GameMenu extends React.Component {
 	constructor(args) {
 		super(args);
+		window.addEventListener('beforeunload', ev => {
+			ev.preventDefault();
+			if(this.state.showThirdScreen){
+				this.quitGameHandle();
+			}
+			this.logoutHandler();
+			//return (ev.returnValue = 'Are you sure you want to close?');
+		});
 		this.state = {
 			showGame: false,
 			showLogin: true,
