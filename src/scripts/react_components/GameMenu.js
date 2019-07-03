@@ -10,7 +10,7 @@ import { throws } from 'assert';
 import { Button, Card, Row, Col, Icon, Collection, CollectionItem, NavItem, Navbar } from 'react-materialize';
 import Container from 'react-materialize/lib/Container';
 
-var logo = <img src={takiLogo} className={'taki_logo'} />;
+var logo = <img style={{maxWidth: '120px'}} src={takiLogo} className={'taki_logo'} />;
 
 var gameInterval;
 var allGameIntreval;
