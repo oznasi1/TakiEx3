@@ -164,7 +164,7 @@ class GameMenu extends React.Component {
 							{this.state.currentGame.numberOfPlayers - this.state.currentGame.players.length != 0
 								? `Status: not started`
 								: `Status: started`}
-							`
+							
 						</Card>
 					</Col>
 				</div>

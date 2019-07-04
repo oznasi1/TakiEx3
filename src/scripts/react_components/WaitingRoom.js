@@ -24,7 +24,7 @@ class WaitingRoom extends React.Component {
 					<NavItem onClick={this.props.logoutHandler}>logout</NavItem>
 				</Navbar>
 				<br />
-				<div style={{ padding: '100px' , fontSize:'large'}}>
+				<div style={{ padding: '70px' , fontSize:'large'}}>
 					<ActiveUsers usersList={this.props.users} />
 					<br />
 					<CreateGame user={this.props.currentUser} />
