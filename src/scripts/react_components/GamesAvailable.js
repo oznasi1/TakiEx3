@@ -47,12 +47,13 @@ class GamesAvailable extends React.Component {
 									style={{
 										height: '55%',
 										width: '40%',
-										maxWidth: '100%',
+                    maxWidth: '350px',
                     backgroundColor: 'rgb(92, 136, 245)',
                     padding:'10px'
 									}}
 									title={`Game name: ${game.name}`}
 								>
+                  
 									Creator: {game.user.name}<br/>
 									Required Players:{game.numberOfPlayers}<br/>
 									<div>
